@@ -2,6 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>
+/* 저장된 테마 설정을 페이지 렌더링 전에 즉시 적용 (깜빡임 방지) */
+(function(){
+  try{
+    if(localStorage.getItem('simjunho_theme') === 'light'){
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  }catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>심준호 | 보험 컨설턴트</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMzEiIGZpbGw9IiMwYTEyMWUiLz4KICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIyNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYzlhMTVjIiBzdHJva2Utd2lkdGg9IjEuNiIvPgogIDx0ZXh0IHg9IjMyIiB5PSIzNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiCiAgICAgICAgZm9udC1mYW1pbHk9IidOb3RvIFNlcmlmIEtSJywgJ01hbGd1biBHb3RoaWMnLCAnQXBwbGUgU0QgR290aGljIE5lbycsIHNlcmlmIgogICAgICAgIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiNlNmNkOTQiPuW/gzwvdGV4dD4KPC9zdmc+">
@@ -37,7 +47,32 @@
     --font-display:'Noto Serif KR', serif;
     --font-body:'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-accent:'Cormorant Garamond', serif;
+    /* 테마별로 달라지는 보조 변수 (다크 기본값) */
+    --header-bg: rgba(10,18,30,0.72);
+    --ring-contrast: rgba(10,18,30,0.6);
+    --input-tint: rgba(238,236,228,0.04);
+    --outline-tint: rgba(238,236,228,0.28);
+    /* 골드 버튼 위에는 테마와 무관하게 항상 어두운 텍스트를 사용 */
+    --on-accent-dark: #0a121e;
   }
+
+  html[data-theme="light"]{
+    --navy-deep:#F1F3F6;
+    --navy-mid:#E7EAF0;
+    --navy-card-solid:#FFFFFF;
+    --gold:#b4863f;
+    --gold-light:#8a642a;
+    --ivory:#1b2433;
+    --slate:#5b6472;
+    --slate-dim:#8b93a0;
+    --line: rgba(20,30,45,0.13);
+    --header-bg: rgba(255,255,255,0.78);
+    --ring-contrast: rgba(255,255,255,0.95);
+    --input-tint: rgba(10,18,30,0.035);
+    --outline-tint: rgba(10,18,30,0.22);
+  }
+
+  html, body{ transition: background-color .35s ease, color .35s ease; }
 
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -53,7 +88,7 @@
   a{color:inherit; text-decoration:none;}
   button{font-family:inherit; cursor:pointer;}
 
-  ::selection{background:var(--gold); color:var(--navy-deep);}
+  ::selection{background:var(--gold); color:var(--on-accent-dark);}
 
   :focus-visible{
     outline:2px solid var(--gold-light);
@@ -86,7 +121,7 @@
   /* ---------------- Header ---------------- */
   header{
     position:fixed; top:0; left:0; right:0; z-index:500;
-    background:rgba(10,18,30,0.72);
+    background:var(--header-bg);
     backdrop-filter:blur(14px) saturate(140%);
     border-bottom:1px solid var(--line);
     transition:background .3s ease;
@@ -141,11 +176,11 @@
   }
   .btn-gold{
     background:linear-gradient(135deg, var(--gold-light), var(--gold));
-    color:var(--navy-deep);
+    color:var(--on-accent-dark);
   }
   .btn-gold:hover{ box-shadow:0 8px 26px -6px rgba(201,161,92,0.55); transform:translateY(-1px); }
   .btn-outline{
-    border-color:rgba(238,236,228,0.28);
+    border-color:var(--outline-tint);
     color:var(--ivory);
     background:transparent;
   }
@@ -157,6 +192,18 @@
   .btn-sm{padding:10px 18px; font-size:13px;}
 
   .nav-cta{display:flex; align-items:center; gap:12px;}
+  .theme-toggle{
+    width:38px; height:38px; flex-shrink:0; border-radius:50%;
+    border:1px solid var(--outline-tint);
+    background:transparent; color:var(--ivory);
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .theme-toggle:hover{ border-color:var(--gold); color:var(--gold-light); }
+  .theme-toggle svg{ width:17px; height:17px; }
+  .theme-toggle .icon-sun{ display:none; }
+  html[data-theme="light"] .theme-toggle .icon-moon{ display:none; }
+  html[data-theme="light"] .theme-toggle .icon-sun{ display:block; }
   .hamburger{display:none;}
 
   /* ---------------- Hero ---------------- */
@@ -254,7 +301,7 @@
     border:2.5px solid var(--gold);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     background:radial-gradient(circle at 35% 30%, rgba(201,161,92,0.14), transparent 65%);
-    box-shadow:0 0 0 6px rgba(10,18,30,0.6), 0 20px 60px -14px rgba(201,161,92,0.35);
+    box-shadow:0 0 0 6px var(--ring-contrast), 0 20px 60px -14px rgba(201,161,92,0.35);
     animation:stampIn 1.1s cubic-bezier(.2,.8,.2,1) both;
     animation-delay:.2s;
   }
@@ -624,10 +671,18 @@
 
   /* ---------------- CTA banner ---------------- */
   .cta-banner{
+    /* 이 배너는 사이트 테마(라이트/다크)와 무관하게 항상 짙은 톤을 유지하는 시그니처 섹션입니다 */
+    --navy-deep:#0a121e;
+    --ivory:#eeece4;
+    --slate:#8d97a8;
+    --gold:#c9a15c;
+    --gold-light:#e6cd94;
+    --line: rgba(201,161,92,0.22);
     background:linear-gradient(120deg, var(--emerald), #0e2a20 60%, var(--navy-deep));
     border-top:1px solid var(--line); border-bottom:1px solid var(--line);
     padding:100px 0;
     position:relative; overflow:hidden;
+    color:var(--ivory);
   }
   .cta-banner::after{
     content:""; position:absolute; right:-10%; top:-30%; width:520px; height:520px;
@@ -691,7 +746,7 @@
   /* ---------------- Admin ---------------- */
   .admin-box label{ display:block; font-size:12.5px; color:var(--slate); margin:16px 0 6px; letter-spacing:0.03em; }
   .admin-box input[type=text], .admin-box input[type=url], .admin-box textarea, .admin-box select{
-    width:100%; background:rgba(238,236,228,0.04); border:1px solid var(--line);
+    width:100%; background:var(--input-tint); border:1px solid var(--line);
     color:var(--ivory); padding:11px 13px; font-size:13.6px; font-family:inherit; border-radius:2px;
   }
   .admin-box textarea{ min-height:80px; resize:vertical; }
@@ -713,6 +768,7 @@
 
   /* ---------------- Responsive ---------------- */
   @media (max-width:980px){
+    .hero{ padding-bottom:70px; }
     .hero-inner{ grid-template-columns:1fr; gap:40px; }
     .seal-stage{ height:280px; order:-1; }
     .seal-ring{ width:220px; height:220px; }
@@ -720,6 +776,7 @@
     .seal-orbit-text{ width:220px; height:220px; }
     .seal-stamp{ width:130px; height:130px; }
     .seal-stamp .glyph{ font-size:32px; }
+    .scroll-cue{ display:none; }
     .about-grid{ grid-template-columns:1fr; }
     .product-grid{ grid-template-columns:repeat(2,1fr); }
     nav.links{ display:none; }
@@ -752,6 +809,10 @@
       <a href="#contact">상담문의</a>
     </nav>
     <div class="nav-cta">
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="다크모드/라이트모드 전환">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
       <a href="tel:01072800823" class="btn btn-outline btn-sm">전화상담</a>
       <a href="#" id="btnKakaoTop" class="btn btn-kakao btn-sm">카카오 상담</a>
     </div>
@@ -1204,6 +1265,21 @@ const CONFIG = {
 };
 
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* 다크모드 / 라이트모드 토글 */
+(function initThemeToggle(){
+  const toggle = document.getElementById('themeToggle');
+  if(!toggle) return;
+  function applyTheme(theme){
+    if(theme === 'light'){ document.documentElement.setAttribute('data-theme','light'); }
+    else{ document.documentElement.removeAttribute('data-theme'); }
+    try{ localStorage.setItem('simjunho_theme', theme); }catch(e){}
+  }
+  toggle.addEventListener('click', ()=>{
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    applyTheme(isLight ? 'dark' : 'light');
+  });
+})();
 
 /* 소개 영상: videoId가 있으면 임베드, 없으면 안내 placeholder 표시 */
 (function renderCareVideo(){
