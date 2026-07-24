@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>심준호 | 보험 컨설팅</title>
-<meta name="description" content="심준호 보험 컨설팅 - 약속, 그 이상을 하다.">
+<meta name="description" content="심준호 보험 컨설팅 - 보험, 그 이상을 하다.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY">
 
@@ -21,9 +21,9 @@
     --ink:#10152b;
     --muted:#666d7d;
     --muted-dim:#9aa1b0;
-    --blue:#2952e3;
-    --blue-light:#4d74ff;
-    --blue-dark:#1c39a8;
+    --blue:#3c7be5;
+    --blue-light:#6fa0f5;
+    --blue-dark:#2358c2;
     --line: rgba(16,21,43,0.09);
     --font-accent:'Cormorant Garamond', serif;
   }
@@ -74,11 +74,14 @@ body{
   /* -------- Header -------- */
   header{
     position:fixed; top:0; left:0; right:0; z-index:500;
-    background:rgba(255,255,255,0.9); backdrop-filter:blur(10px);
+    background:transparent; backdrop-filter:none;
     border-bottom:1px solid transparent;
-    transition:border-color .25s ease, box-shadow .25s ease;
+    transition:background .3s ease, border-color .25s ease, box-shadow .25s ease, backdrop-filter .3s ease;
   }
-  header.scrolled{ border-color:var(--line); box-shadow:0 4px 24px -12px rgba(16,21,43,0.12); }
+  header.scrolled{
+    background:rgba(255,255,255,0.9); backdrop-filter:blur(10px);
+    border-color:var(--line); box-shadow:0 4px 24px -12px rgba(16,21,43,0.12);
+  }
   .nav-inner{
     max-width:1240px; margin:0 auto; padding:0 32px;
     height:76px; display:flex; align-items:center; justify-content:space-between;
@@ -90,11 +93,18 @@ body{
   }
   .brand .mark img{ width:100%; height:100%; object-fit:contain; }
   .brand .b-text{ display:flex; flex-direction:column; line-height:1.15; }
-  .brand .b-name{ font-weight:800; font-size:17px; color:var(--ink); }
-  .brand .b-tag{ font-size:9.5px; letter-spacing:0.14em; color:var(--muted); font-weight:600; }
+  .brand .b-name{ font-weight:800; font-size:17px; color:#fff; transition:color .25s ease; }
+  .brand .b-tag{ font-size:9.5px; letter-spacing:0.14em; color:rgba(255,255,255,0.78); font-weight:600; transition:color .25s ease; }
+  header.scrolled .brand .b-name{ color:var(--ink); }
+  header.scrolled .brand .b-tag{ color:var(--muted); }
   nav.links{ display:flex; gap:38px; font-size:14.5px; font-weight:600; }
-  nav.links a{ color:var(--muted); transition:color .2s ease; }
-  nav.links a:hover{ color:var(--blue); }
+  nav.links a{ color:rgba(255,255,255,0.88); transition:color .2s ease; }
+  nav.links a:hover{ color:#fff; }
+  header.scrolled nav.links a{ color:var(--muted); }
+  header.scrolled nav.links a:hover{ color:var(--blue); }
+  header:not(.scrolled) .btn-outline{ border-color:rgba(255,255,255,0.55); color:#fff; }
+  header:not(.scrolled) .btn-outline:hover{ border-color:#fff; background:rgba(255,255,255,0.14); color:#fff; }
+  header:not(.scrolled) .brand .mark{ background:#fff; border-radius:50%; padding:5px; }
   .nav-cta{ display:flex; align-items:center; gap:12px; }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
@@ -102,7 +112,7 @@ body{
     border-radius:999px; border:1px solid transparent; transition:all .22s ease; white-space:nowrap;
   }
   .btn-blue{ background:var(--blue); color:#fff; }
-  .btn-blue:hover{ background:var(--blue-dark); transform:translateY(-1px); box-shadow:0 10px 24px -10px rgba(41,82,227,0.5); }
+  .btn-blue:hover{ background:var(--blue-dark); transform:translateY(-1px); box-shadow:0 10px 24px -10px rgba(60,123,229,0.5); }
   .btn-kakao{ background:#FEE500; color:#391B1B; }
   .btn-kakao:hover{ transform:translateY(-1px); box-shadow:0 10px 24px -10px rgba(254,229,0,0.6); }
   .btn-outline{ border-color:var(--line); color:var(--ink); }
@@ -127,6 +137,8 @@ body{
   }
   .mobile-menu.open{ transform:translateY(0); }
   .mobile-menu-top{ height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 24px; border-bottom:1px solid var(--line); }
+  .mobile-menu-top .brand .b-name{ color:var(--ink); }
+  .mobile-menu-top .brand .b-tag{ color:var(--muted); }
   .mobile-menu-close{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; }
   .mobile-menu nav{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 32px; gap:8px; }
   .mobile-menu nav a{ font-size:30px; font-weight:800; padding:14px 0; border-bottom:1px solid var(--line); color:var(--ink); }
@@ -134,20 +146,26 @@ body{
   .mobile-menu-actions .btn{ flex:1; }
 
   /* -------- Hero -------- */
-  .hero{ padding:170px 0 100px; position:relative; overflow:hidden; }
+  .hero{ padding:170px 0 100px; position:relative; overflow:hidden; background:var(--blue); color:#fff; }
   .hero::before{
     content:""; position:absolute; top:-200px; right:-160px; width:640px; height:640px; border-radius:50%;
-    background:radial-gradient(circle, rgba(41,82,227,0.14), transparent 70%);
+    background:radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+  }
+  .hero::after{
+    content:""; position:absolute; bottom:-240px; left:-180px; width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%);
   }
   .hero-inner{ position:relative; z-index:1; display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px; align-items:center; }
-  .hero-tag{ font-family:var(--font-accent); font-style:italic; font-size:17px; color:var(--blue); margin-bottom:16px; }
-  .hero h1{ font-size:clamp(36px,5vw,60px); line-height:1.18; }
-  .hero h1 .accent{ color:var(--blue); }
-  .hero-sub{ margin-top:22px; max-width:460px; color:var(--muted); font-size:16px; }
+  .hero-tag{ font-family:var(--font-accent); font-style:italic; font-size:17px; color:rgba(255,255,255,0.85); margin-bottom:16px; }
+  .hero h1{ font-size:clamp(36px,5vw,60px); line-height:1.18; color:#fff; }
+  .hero h1 .accent{ color:#fff; }
+  .hero-sub{ margin-top:22px; max-width:460px; color:rgba(255,255,255,0.82); font-size:16px; }
   .hero-cta{ display:flex; gap:14px; margin-top:36px; flex-wrap:wrap; }
+  .hero .btn-outline{ background:#fff; border-color:#fff; color:var(--blue); }
+  .hero .btn-outline:hover{ background:transparent; color:#fff; border-color:#fff; }
   .hero-photo{
     position:relative; border-radius:28px; overflow:hidden; aspect-ratio:4/5;
-    box-shadow:0 30px 70px -30px rgba(16,21,43,0.35);
+    box-shadow:0 30px 70px -30px rgba(0,0,0,0.4);
   }
   .hero-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
   .hero-photo-badge{
@@ -190,7 +208,7 @@ body{
     background:linear-gradient(180deg, #d7dbe6, #c3c8d6);
     transition:height 1.1s cubic-bezier(.2,.8,.2,1);
   }
-  .gbar-item.is-peak .gbar-fill{ background:linear-gradient(180deg, var(--blue-light), var(--blue)); box-shadow:0 12px 28px -10px rgba(41,82,227,0.45); }
+  .gbar-item.is-peak .gbar-fill{ background:linear-gradient(180deg, var(--blue-light), var(--blue)); box-shadow:0 12px 28px -10px rgba(60,123,229,0.45); }
   .gbar-year{ margin-top:14px; font-size:13px; color:var(--muted); font-weight:700; }
   .growth-chart.in-view .gbar-num{ opacity:1; transform:translateY(0); }
   .growth-note{ font-size:11.5px; color:var(--muted-dim); text-align:center; margin-top:14px; }
@@ -326,12 +344,16 @@ body{
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
 
   /* -------- Footer -------- */
-  footer{ border-top:1px solid var(--line); padding:64px 0 36px; background:#fff; }
-  .footer-top{ display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; padding-bottom:36px; border-bottom:1px solid var(--line); }
+  footer{ border-top:1px solid transparent; padding:64px 0 36px; background:var(--blue); color:#fff; }
+  .footer-top{ display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; padding-bottom:36px; border-bottom:1px solid rgba(255,255,255,0.2); }
+  .footer-brand .cert-logo{ background:#fff; border-radius:10px; padding:8px 12px; display:inline-block; margin-bottom:18px; }
   .footer-brand .brand{ margin-bottom:16px; }
-  .footer-brand p{ color:var(--muted); font-size:12.8px; max-width:340px; line-height:1.7; }
-  .footer-links{ display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--muted); font-weight:600; }
-  .footer-links a:hover{ color:var(--blue); }
+  .footer-brand .brand .mark{ background:#fff; border-radius:50%; padding:5px; }
+  .footer-brand .brand .b-name{ color:#fff; }
+  .footer-brand .brand .b-tag{ color:rgba(255,255,255,0.75); }
+  .footer-brand p{ color:rgba(255,255,255,0.75); font-size:12.8px; max-width:340px; line-height:1.7; }
+  .footer-links{ display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:rgba(255,255,255,0.85); font-weight:600; }
+  .footer-links a:hover{ color:#fff; }
 
   /* -------- Privacy Policy Modal -------- */
   .privacy-overlay{
@@ -377,12 +399,12 @@ body{
     padding:10px 22px; border-radius:10px; cursor:pointer; font-size:13px;
   }
   .privacy-modal-footer button:hover{ background:var(--blue-dark); }
-  .footer-legal{ margin-top:28px; font-size:11.8px; color:var(--muted-dim); line-height:2; }
+  .footer-legal{ margin-top:28px; font-size:11.8px; color:rgba(255,255,255,0.6); line-height:2; }
   .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:24px; flex-wrap:wrap; gap:10px; }
-  .footer-bottom p{ font-size:11px; color:var(--muted-dim); }
+  .footer-bottom p{ font-size:11px; color:rgba(255,255,255,0.55); }
   .footer-sns{ display:flex; gap:12px; }
-  .footer-sns a{ font-size:11.5px; color:var(--muted); border:1px solid var(--line); padding:7px 14px; border-radius:999px; font-weight:600; }
-  .footer-sns a:hover{ color:var(--blue); border-color:var(--blue); }
+  .footer-sns a{ font-size:11.5px; color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.35); padding:7px 14px; border-radius:999px; font-weight:600; }
+  .footer-sns a:hover{ color:#fff; border-color:#fff; }
 
   .floating-kakao{
     position:fixed; right:26px; bottom:26px; z-index:400;
@@ -457,7 +479,7 @@ body{
   <div class="wrap hero-inner">
     <div class="reveal">
       <div class="hero-tag">Insurance Consulting</div>
-      <h1>약속,<br>그 <span class="accent">이상</span>을 하다.</h1>
+      <h1>보험,<br>그 <span class="accent">이상</span>을 하다.</h1>
       <p class="hero-sub">심준호입니다. 팩트에 기반한 비교설계와 체계적인 사후관리로 고객님의 평생 보험 파트너가 되겠습니다.</p>
       <div class="hero-cta">
         <a href="#" id="btnKakaoHero" class="btn btn-kakao">카카오톡 상담</a>
@@ -669,7 +691,7 @@ body{
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <img src="https://lh3.googleusercontent.com/d/1eap4mqRfCjRVRUYhmMtyKo3HhBXW0Ufy" style="width:190px; height:auto; margin-bottom:18px;">
+        <img class="cert-logo" src="https://lh3.googleusercontent.com/d/1eap4mqRfCjRVRUYhmMtyKo3HhBXW0Ufy" style="width:190px; height:auto;">
         <a href="#top" class="brand"><span class="mark"><img src="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY"></span><span class="b-text"><span class="b-name">심준호</span><span class="b-tag">INSURANCE CONSULTING</span></span></a>
         <p>심준호의 개인 보험 컨설팅 소개 페이지입니다. 보험상품 안내는 요약 정보이며, 세부 보장내용은 약관 및 상품설명서를 통해 반드시 확인하시기 바랍니다.</p>
       </div>
