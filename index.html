@@ -400,6 +400,85 @@ body{
   }
   .privacy-modal-footer button:hover{ background:var(--blue-dark); }
   .footer-legal{ margin-top:28px; font-size:11.8px; color:rgba(255,255,255,0.6); line-height:2; }
+
+  /* -------- Materials (자료실) -------- */
+  .materials-toolbar{ display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-bottom:26px; }
+  .materials-count{ font-size:13px; color:var(--muted); font-weight:600; margin-right:auto; }
+  .materials-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:22px;
+  }
+  .material-card{
+    cursor:pointer; border-radius:14px; overflow:hidden; border:1px solid var(--line);
+    background:#fff; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .material-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px -18px rgba(16,21,43,0.28); }
+  .material-thumb{ position:relative; aspect-ratio:3/4; background:var(--bg-panel); overflow:hidden; }
+  .material-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .material-thumb .thumb-fallback{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:var(--muted-dim); font-weight:700;
+  }
+  .material-info{ padding:13px 15px; }
+  .material-title{
+    font-weight:700; font-size:13.5px; color:var(--ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .material-date{ font-size:11.5px; color:var(--muted); margin-top:4px; }
+  .materials-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
+  .materials-skel{ background:linear-gradient(100deg, var(--bg-panel) 30%, #f8f9fb 50%, var(--bg-panel) 70%); background-size:200% 100%; animation:matShimmer 1.3s ease infinite; }
+  @keyframes matShimmer{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+  /* Viewer overlay */
+  .material-viewer{
+    position:fixed; inset:0; z-index:2100; background:rgba(10,12,20,0.92);
+    display:none; flex-direction:column; opacity:0; transition:opacity .2s ease;
+  }
+  .material-viewer.open{ display:flex; opacity:1; }
+  .material-viewer-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:14px 22px; background:rgba(16,21,43,0.9); flex-shrink:0;
+  }
+  .material-viewer-title{ color:#fff; font-weight:700; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .material-viewer-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .material-viewer-actions .btn-outline{ border-color:rgba(255,255,255,0.35); color:#fff; }
+  .material-viewer-actions .btn-outline:hover{ border-color:#fff; background:rgba(255,255,255,0.12); }
+  .material-viewer-close{
+    border:none; background:rgba(255,255,255,0.12); color:#fff; width:34px; height:34px;
+    border-radius:999px; font-size:18px; cursor:pointer; flex-shrink:0;
+  }
+  .material-viewer-close:hover{ background:rgba(255,255,255,0.22); }
+  .material-viewer iframe{ flex:1; width:100%; border:none; background:#525659; }
+
+  /* Login / upload modal helpers */
+  .modal-sm{ max-width:440px; }
+  .form-row{ margin-bottom:16px; }
+  .form-row label{ display:block; font-size:12.5px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .form-row input[type="email"], .form-row input[type="password"], .form-row input[type="text"]{
+    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:10px;
+    font-size:13.5px; font-family:inherit; color:var(--ink); background:var(--bg-alt);
+  }
+  .form-row input:focus{ outline:none; border-color:var(--blue); background:#fff; }
+  .form-drop{
+    border:1.5px dashed var(--line); border-radius:12px; padding:26px 16px; text-align:center;
+    color:var(--muted); font-size:13px; cursor:pointer; background:var(--bg-alt);
+  }
+  .form-drop:hover{ border-color:var(--blue); color:var(--blue); }
+  .form-drop input{ display:none; }
+  .form-msg{ font-size:12.5px; margin-top:10px; }
+  .form-msg.error{ color:#d3423e; }
+  .form-msg.ok{ color:var(--blue-dark); }
+  .form-progress{ height:6px; border-radius:99px; background:var(--bg-panel); overflow:hidden; margin-top:12px; display:none; }
+  .form-progress .bar{ height:100%; width:0%; background:var(--blue); transition:width .2s ease; }
+  .materials-adminbar{ display:none; align-items:center; gap:10px; }
+  .materials-adminbar.on{ display:flex; }
+  .materials-list-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;
+  }
+  .materials-list-row:last-child{ border-bottom:none; }
+  .materials-list-row .del-btn{
+    border:none; background:none; color:#d3423e; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0;
+  }
   .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding-top:24px; flex-wrap:wrap; gap:10px; }
   .footer-bottom p{ font-size:11px; color:rgba(255,255,255,0.55); }
   .footer-sns{ display:flex; gap:12px; }
@@ -445,6 +524,7 @@ body{
       <a href="#client">소개</a>
       <a href="#service">서비스</a>
       <a href="#partner">파트너</a>
+      <a href="#materials">자료실</a>
       <a href="#contact">상담문의</a>
     </nav>
     <div class="nav-cta">
@@ -466,6 +546,7 @@ body{
     <a href="#client">소개</a>
     <a href="#service">서비스</a>
     <a href="#partner">파트너</a>
+    <a href="#materials">자료실</a>
     <a href="#contact">상담문의</a>
   </nav>
   <div class="mobile-menu-actions">
@@ -650,6 +731,29 @@ body{
         <p>가입 이후에도 보험금 청구, 서류 준비, 보장 변경까지 필요한 순간마다 끝까지 함께합니다.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- MATERIALS -->
+<section class="band" id="materials">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">Archive</span>
+      <h2>자료실</h2>
+      <p>보험 관련 소식지와 안내 자료를 확인하실 수 있습니다. 클릭하면 바로 내용을 볼 수 있어요.</p>
+    </div>
+
+    <div class="materials-toolbar reveal">
+      <span class="materials-count" id="materialsCount"></span>
+      <div class="materials-adminbar" id="materialsAdminBar">
+        <button type="button" class="btn btn-blue btn-sm" id="materialsUploadBtn">자료 업로드</button>
+        <button type="button" class="btn btn-outline btn-sm" id="materialsLogoutBtn">로그아웃</button>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="materialsAdminBtn">관리자</button>
+    </div>
+
+    <div class="materials-grid reveal-group" id="materialsGrid"></div>
+    <p class="materials-empty" id="materialsEmpty" style="display:none;">아직 등록된 자료가 없습니다.</p>
   </div>
 </section>
 
@@ -845,6 +949,76 @@ body{
   <img id="claimLightboxImg" src="" alt="청구사례 확대 보기">
 </div>
 
+<!-- 자료 뷰어 -->
+<div class="material-viewer" id="materialViewer">
+  <div class="material-viewer-bar">
+    <div class="material-viewer-title" id="materialViewerTitle"></div>
+    <div class="material-viewer-actions">
+      <a href="#" target="_blank" rel="noopener" id="materialViewerOpenNew" class="btn btn-outline btn-sm">새 창에서 열기</a>
+      <button type="button" class="material-viewer-close" id="materialViewerClose" aria-label="닫기">×</button>
+    </div>
+  </div>
+  <iframe id="materialViewerFrame" src="" title="자료 미리보기"></iframe>
+</div>
+
+<!-- 관리자 로그인 -->
+<div class="privacy-overlay" id="materialsLoginOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>관리자 로그인</h3>
+      <button type="button" class="privacy-modal-close" id="materialsLoginCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="materialsLoginForm">
+        <div class="form-row">
+          <label for="materialsLoginEmail">이메일</label>
+          <input type="email" id="materialsLoginEmail" autocomplete="username" required>
+        </div>
+        <div class="form-row">
+          <label for="materialsLoginPw">비밀번호</label>
+          <input type="password" id="materialsLoginPw" autocomplete="current-password" required>
+        </div>
+        <p class="form-msg" id="materialsLoginMsg"></p>
+      </form>
+    </div>
+    <div class="privacy-modal-footer">
+      <button type="submit" form="materialsLoginForm">로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 자료 업로드 -->
+<div class="privacy-overlay" id="materialsUploadOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>자료 업로드</h3>
+      <button type="button" class="privacy-modal-close" id="materialsUploadCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="materialsUploadForm">
+        <div class="form-row">
+          <label for="materialsFileInput">PDF 파일</label>
+          <label class="form-drop" id="materialsDropLabel" for="materialsFileInput">
+            <span id="materialsDropText">클릭해서 PDF 선택 (파일명이 자료 제목이 됩니다)</span>
+            <input type="file" id="materialsFileInput" accept="application/pdf">
+          </label>
+        </div>
+        <div class="form-row">
+          <label for="materialsTitleInput">자료 제목</label>
+          <input type="text" id="materialsTitleInput" placeholder="PDF 선택 시 자동 입력 (수정 가능)">
+        </div>
+        <div class="form-progress" id="materialsProgress"><div class="bar" id="materialsProgressBar"></div></div>
+        <p class="form-msg" id="materialsUploadMsg"></p>
+      </form>
+      <hr style="border:none; border-top:1px solid var(--line); margin:20px 0;">
+      <div id="materialsManageList"></div>
+    </div>
+    <div class="privacy-modal-footer">
+      <button type="submit" form="materialsUploadForm" id="materialsUploadSubmitBtn">업로드</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const CONFIG = {
     kakaoUrl: "http://pf.kakao.com/_xmfYfX/chat",
@@ -1032,6 +1206,284 @@ body{
       play();
     }
   })();
+</script>
+
+<!-- 자료실: PDF.js (썸네일 생성용) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, deleteDoc, doc,
+    query, orderBy, onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import {
+    getStorage, ref, uploadBytes, getDownloadURL, deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA_xLaF-zfI-aIidRxcJuflNzYEU9zFdtU",
+  authDomain: "simjunho-insurance.firebaseapp.com",
+  projectId: "simjunho-insurance",
+  storageBucket: "simjunho-insurance.firebasestorage.app",
+  messagingSenderId: "579184940244",
+  appId: "1:579184940244:web:f7585fc0daeb9741b41741"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const auth = getAuth(app);
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const materialsGrid = document.getElementById('materialsGrid');
+  const materialsCount = document.getElementById('materialsCount');
+  const materialsEmpty = document.getElementById('materialsEmpty');
+  const materialsAdminBar = document.getElementById('materialsAdminBar');
+  const materialsAdminBtn = document.getElementById('materialsAdminBtn');
+  const materialsManageList = document.getElementById('materialsManageList');
+
+  let currentDocs = [];
+  let isAdmin = false;
+
+  function escapeHtml(str){
+    return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+  function formatDate(ts){
+    if(!ts || !ts.toDate) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  /* ---- 목록 실시간 렌더링 ---- */
+  const materialsQuery = query(collection(db, 'materials'), orderBy('uploadedAt', 'desc'));
+  onSnapshot(materialsQuery, (snap) => {
+    currentDocs = [];
+    snap.forEach(d => currentDocs.push({ id: d.id, ...d.data() }));
+    renderGrid();
+    renderManageList();
+  }, (err) => {
+    console.error('자료 목록을 불러오지 못했습니다', err);
+    materialsEmpty.textContent = '자료를 불러오지 못했습니다. firebaseConfig 설정을 확인해주세요.';
+    materialsEmpty.style.display = 'block';
+  });
+
+  function renderGrid(){
+    materialsCount.textContent = currentDocs.length ? `총 ${currentDocs.length}건` : '';
+    materialsEmpty.style.display = currentDocs.length ? 'none' : 'block';
+    if(materialsEmpty.style.display === 'block') materialsEmpty.textContent = '아직 등록된 자료가 없습니다.';
+
+    materialsGrid.innerHTML = currentDocs.map(item => `
+      <div class="material-card" data-id="${item.id}">
+        <div class="material-thumb">
+          ${item.thumbURL
+            ? `<img src="${item.thumbURL}" loading="lazy" alt="${escapeHtml(item.title)}">`
+            : `<div class="thumb-fallback">PDF</div>`}
+        </div>
+        <div class="material-info">
+          <div class="material-title">${escapeHtml(item.title)}</div>
+          <div class="material-date">${formatDate(item.uploadedAt)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    materialsGrid.querySelectorAll('.material-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const item = currentDocs.find(x => x.id === card.dataset.id);
+        if(item) openViewer(item);
+      });
+    });
+  }
+
+  /* ---- 뷰어 ---- */
+  const materialViewer = document.getElementById('materialViewer');
+  const materialViewerFrame = document.getElementById('materialViewerFrame');
+  const materialViewerTitle = document.getElementById('materialViewerTitle');
+  const materialViewerOpenNew = document.getElementById('materialViewerOpenNew');
+  const materialViewerClose = document.getElementById('materialViewerClose');
+
+  function openViewer(item){
+    materialViewerTitle.textContent = item.title;
+    materialViewerFrame.src = item.pdfURL;
+    materialViewerOpenNew.href = item.pdfURL;
+    materialViewer.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeViewer(){
+    materialViewer.classList.remove('open');
+    materialViewerFrame.src = '';
+    document.body.style.overflow = '';
+  }
+  materialViewerClose.addEventListener('click', closeViewer);
+  materialViewer.addEventListener('click', e => { if(e.target === materialViewer) closeViewer(); });
+
+  /* ---- 관리자 로그인 ---- */
+  const materialsLoginOverlay = document.getElementById('materialsLoginOverlay');
+  const materialsLoginForm = document.getElementById('materialsLoginForm');
+  const materialsLoginMsg = document.getElementById('materialsLoginMsg');
+  const materialsLoginCloseBtn = document.getElementById('materialsLoginCloseBtn');
+  const materialsLogoutBtn = document.getElementById('materialsLogoutBtn');
+  const materialsUploadBtn = document.getElementById('materialsUploadBtn');
+  const materialsUploadOverlay = document.getElementById('materialsUploadOverlay');
+
+  function openLogin(){ materialsLoginOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeLogin(){ materialsLoginOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  function openUpload(){ materialsUploadOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeUpload(){ materialsUploadOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+
+  materialsAdminBtn.addEventListener('click', () => { isAdmin ? openUpload() : openLogin(); });
+  materialsUploadBtn.addEventListener('click', openUpload);
+  materialsLoginCloseBtn.addEventListener('click', closeLogin);
+  document.getElementById('materialsUploadCloseBtn').addEventListener('click', closeUpload);
+  materialsLoginOverlay.addEventListener('click', e => { if(e.target === materialsLoginOverlay) closeLogin(); });
+  materialsUploadOverlay.addEventListener('click', e => { if(e.target === materialsUploadOverlay) closeUpload(); });
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Escape') return;
+    closeViewer(); closeLogin(); closeUpload();
+  });
+
+  materialsLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    materialsLoginMsg.textContent = '';
+    materialsLoginMsg.className = 'form-msg';
+    const email = document.getElementById('materialsLoginEmail').value.trim();
+    const pw = document.getElementById('materialsLoginPw').value;
+    try{
+      await signInWithEmailAndPassword(auth, email, pw);
+      closeLogin();
+      materialsLoginForm.reset();
+    } catch(err){
+      materialsLoginMsg.textContent = '로그인에 실패했습니다. 이메일/비밀번호를 확인해주세요.';
+      materialsLoginMsg.className = 'form-msg error';
+    }
+  });
+  materialsLogoutBtn.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    isAdmin = !!user;
+    materialsAdminBar.classList.toggle('on', isAdmin);
+    materialsAdminBtn.style.display = isAdmin ? 'none' : '';
+    renderManageList();
+  });
+
+  /* ---- 업로드 ---- */
+  const materialsFileInput = document.getElementById('materialsFileInput');
+  const materialsTitleInput = document.getElementById('materialsTitleInput');
+  const materialsDropText = document.getElementById('materialsDropText');
+  const materialsUploadForm = document.getElementById('materialsUploadForm');
+  const materialsUploadMsg = document.getElementById('materialsUploadMsg');
+  const materialsProgress = document.getElementById('materialsProgress');
+  const materialsProgressBar = document.getElementById('materialsProgressBar');
+  const materialsUploadSubmitBtn = document.getElementById('materialsUploadSubmitBtn');
+
+  materialsFileInput.addEventListener('change', () => {
+    const f = materialsFileInput.files[0];
+    if(!f) return;
+    materialsDropText.textContent = f.name;
+    materialsTitleInput.value = f.name.replace(/\.pdf$/i, '');
+  });
+
+  async function makeThumbnail(file){
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.4 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+  }
+
+  materialsUploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!isAdmin){
+      materialsUploadMsg.textContent = '로그인이 필요합니다.';
+      materialsUploadMsg.className = 'form-msg error';
+      return;
+    }
+    const file = materialsFileInput.files[0];
+    const title = materialsTitleInput.value.trim();
+    if(!file){ materialsUploadMsg.textContent='PDF 파일을 선택해주세요.'; materialsUploadMsg.className='form-msg error'; return; }
+    if(!title){ materialsUploadMsg.textContent='자료 제목을 입력해주세요.'; materialsUploadMsg.className='form-msg error'; return; }
+
+    materialsUploadSubmitBtn.disabled = true;
+    materialsUploadMsg.textContent = '썸네일 생성 중...';
+    materialsUploadMsg.className = 'form-msg';
+    materialsProgress.style.display = 'block';
+    materialsProgressBar.style.width = '10%';
+
+    try{
+      const thumbBlob = await makeThumbnail(file);
+      materialsProgressBar.style.width = '35%';
+
+      const stamp = Date.now();
+      const safeBase = title.replace(/[^\w\uac00-\ud7a3\- ]/g, '').trim() || 'material';
+      const pdfRef = ref(storage, `materials/${stamp}_${safeBase}.pdf`);
+      const thumbRef = ref(storage, `materials/thumbnails/${stamp}_${safeBase}.jpg`);
+
+      materialsUploadMsg.textContent = 'PDF 업로드 중...';
+      await uploadBytes(pdfRef, file, { contentType: 'application/pdf' });
+      materialsProgressBar.style.width = '70%';
+
+      materialsUploadMsg.textContent = '썸네일 업로드 중...';
+      await uploadBytes(thumbRef, thumbBlob, { contentType: 'image/jpeg' });
+      materialsProgressBar.style.width = '85%';
+
+      const [pdfURL, thumbURL] = await Promise.all([getDownloadURL(pdfRef), getDownloadURL(thumbRef)]);
+
+      await addDoc(collection(db, 'materials'), {
+        title, pdfURL, thumbURL,
+        pdfPath: pdfRef.fullPath, thumbPath: thumbRef.fullPath,
+        uploadedAt: serverTimestamp()
+      });
+
+      materialsProgressBar.style.width = '100%';
+      materialsUploadMsg.textContent = '업로드 완료!';
+      materialsUploadMsg.className = 'form-msg ok';
+      materialsUploadForm.reset();
+      materialsDropText.textContent = '클릭해서 PDF 선택 (파일명이 자료 제목이 됩니다)';
+    } catch(err){
+      console.error(err);
+      materialsUploadMsg.textContent = '업로드 중 오류가 발생했습니다.';
+      materialsUploadMsg.className = 'form-msg error';
+    } finally {
+      materialsUploadSubmitBtn.disabled = false;
+      setTimeout(() => { materialsProgress.style.display = 'none'; materialsProgressBar.style.width = '0%'; }, 800);
+    }
+  });
+
+  /* ---- 관리자: 자료 삭제 ---- */
+  function renderManageList(){
+    if(!isAdmin){ materialsManageList.innerHTML = ''; return; }
+    if(!currentDocs.length){ materialsManageList.innerHTML = '<p class="form-msg">등록된 자료가 없습니다.</p>'; return; }
+    materialsManageList.innerHTML = `<p class="form-row"><label>등록된 자료 관리</label></p>` +
+      currentDocs.map(item => `
+        <div class="materials-list-row" data-id="${item.id}">
+          <span>${escapeHtml(item.title)}</span>
+          <button type="button" class="del-btn" data-id="${item.id}">삭제</button>
+        </div>
+      `).join('');
+
+    materialsManageList.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const item = currentDocs.find(x => x.id === btn.dataset.id);
+        if(!item) return;
+        if(!confirm(`"${item.title}" 자료를 삭제할까요?`)) return;
+        try{
+          await deleteDoc(doc(db, 'materials', item.id));
+          if(item.pdfPath) await deleteObject(ref(storage, item.pdfPath)).catch(()=>{});
+          if(item.thumbPath) await deleteObject(ref(storage, item.thumbPath)).catch(()=>{});
+        } catch(err){
+          alert('삭제 중 오류가 발생했습니다.');
+        }
+      });
+    });
+  }
 </script>
 </body>
 </html>
