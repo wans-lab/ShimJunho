@@ -465,26 +465,47 @@ body{
   .materials-skel{ background:linear-gradient(100deg, var(--bg-panel) 30%, #f8f9fb 50%, var(--bg-panel) 70%); background-size:200% 100%; animation:matShimmer 1.3s ease infinite; }
   @keyframes matShimmer{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
-  /* Viewer overlay */
-  .material-viewer{
-    position:fixed; inset:0; z-index:2100; background:rgba(10,12,20,0.92);
-    display:none; flex-direction:column; opacity:0; transition:opacity .2s ease;
+  /* -------- Materials: 모바일 최적화 -------- */
+  @media (max-width:640px){
+    .materials-monthbar{ gap:8px; margin-bottom:14px; }
+    .month-nav-btn{ width:28px; height:28px; font-size:16px; }
+    .month-nav-label{ font-size:14px; min-width:96px; }
+    .month-nav-all{ padding:5px 11px; font-size:11.5px; margin-left:2px; }
+
+    .materials-catbar{ gap:7px; margin-bottom:16px; }
+    .cat-tab{ padding:6px 12px; font-size:12px; }
+    .materials-select{ padding:6px 26px 6px 12px; font-size:12px; background-position:right 10px center; }
+
+    .materials-toolbar{ justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px; text-align:center; }
+    .materials-count{ width:100%; margin-right:0; text-align:center; }
+    .materials-adminbar{ gap:8px; }
+    .materials-adminbar .btn, #materialsAdminBtn{ font-size:12.5px; padding:8px 14px; }
+
+    .materials-grid{
+      grid-template-columns:repeat(3, 1fr); gap:8px;
+    }
+    .material-card{ border-radius:10px; }
+    .material-insurer-badge{ top:6px; left:6px; font-size:9px; padding:3px 7px; }
+    .material-info{ padding:8px 7px 10px; }
+    .material-title{
+      white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+      overflow:hidden; font-size:11px; line-height:1.35; word-break:keep-all;
+    }
+    .material-date{ font-size:10px; margin-top:3px; }
+    .materials-loadmore{ font-size:12.5px; padding:10px 22px; }
   }
-  .material-viewer.open{ display:flex; opacity:1; }
-  .material-viewer-bar{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:14px 22px; background:rgba(16,21,43,0.9); flex-shrink:0;
+
+  /* 더 보기 버튼 */
+  .materials-loadmore{
+    display:none; margin:28px auto 0; padding:11px 28px; border-radius:999px;
+    border:1px solid var(--line); background:#fff; color:var(--ink); font-size:13.5px; font-weight:700;
+    cursor:pointer;
   }
-  .material-viewer-title{ color:#fff; font-weight:700; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .material-viewer-actions{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
-  .material-viewer-actions .btn-outline{ border-color:rgba(255,255,255,0.35); color:#fff; }
-  .material-viewer-actions .btn-outline:hover{ border-color:#fff; background:rgba(255,255,255,0.12); }
-  .material-viewer-close{
-    border:none; background:rgba(255,255,255,0.12); color:#fff; width:34px; height:34px;
-    border-radius:999px; font-size:18px; cursor:pointer; flex-shrink:0;
-  }
-  .material-viewer-close:hover{ background:rgba(255,255,255,0.22); }
-  .material-viewer iframe{ flex:1; width:100%; border:none; background:#525659; }
+  .materials-loadmore:hover{ border-color:var(--blue); color:var(--blue); }
+
+  /* 모바일 "더보기" 팝업 */
+  .materials-more-modal .privacy-modal-body{ max-height:74vh; overflow-y:auto; }
+  .materials-more-modal .materials-grid{ margin-top:0; }
 
   /* Login / upload modal helpers */
   .modal-sm{ max-width:440px; }
@@ -807,6 +828,7 @@ body{
 
     <div class="materials-grid reveal-group" id="materialsGrid"></div>
     <p class="materials-empty" id="materialsEmpty" style="display:none;">아직 등록된 자료가 없습니다.</p>
+    <button type="button" class="materials-loadmore" id="materialsLoadMoreBtn">더 보기</button>
   </div>
 </section>
 
@@ -1002,16 +1024,17 @@ body{
   <img id="claimLightboxImg" src="" alt="청구사례 확대 보기">
 </div>
 
-<!-- 자료 뷰어 -->
-<div class="material-viewer" id="materialViewer">
-  <div class="material-viewer-bar">
-    <div class="material-viewer-title" id="materialViewerTitle"></div>
-    <div class="material-viewer-actions">
-      <a href="#" target="_blank" rel="noopener" id="materialViewerOpenNew" class="btn btn-outline btn-sm">새 창에서 열기</a>
-      <button type="button" class="material-viewer-close" id="materialViewerClose" aria-label="닫기">×</button>
+<!-- 모바일 "더보기" 팝업 -->
+<div class="privacy-overlay" id="materialsMoreOverlay">
+  <div class="privacy-modal materials-more-modal" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3 id="materialsMoreTitle">전체 자료</h3>
+      <button type="button" class="privacy-modal-close" id="materialsMoreCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <div class="materials-grid" id="materialsMoreGrid"></div>
     </div>
   </div>
-  <iframe id="materialViewerFrame" src="" title="자료 미리보기"></iframe>
 </div>
 
 <!-- 관리자 로그인 -->
@@ -1298,6 +1321,7 @@ body{
   const materialsPrevMonth = document.getElementById('materialsPrevMonth');
   const materialsNextMonth = document.getElementById('materialsNextMonth');
   const materialsAllMonths = document.getElementById('materialsAllMonths');
+  const materialsLoadMoreBtn = document.getElementById('materialsLoadMoreBtn');
 
   let currentDocs = [];
   let isAdmin = false;
@@ -1404,13 +1428,16 @@ body{
     renderManageList();
   }
 
-  function renderGrid(){
-    const docs = visibleDocs();
-    materialsCount.textContent = docs.length ? `총 ${docs.length}건` : '';
-    materialsEmpty.style.display = docs.length ? 'none' : 'block';
-    if(docs.length === 0) materialsEmpty.textContent = '해당 조건의 자료가 없습니다.';
+  const DESKTOP_LIMIT = 10;
+  const MOBILE_LIMIT = 9; // 3열 x 3행
+  let desktopExpanded = false;
 
-    materialsGrid.innerHTML = docs.map(item => `
+  function isMobile(){
+    return window.matchMedia('(max-width: 640px)').matches;
+  }
+
+  function cardHTML(item){
+    return `
       <div class="material-card" data-id="${item.id}">
         <div class="material-thumb">
           ${item.insurer ? `<span class="material-insurer-badge">${escapeHtml(item.insurer)}</span>` : ''}
@@ -1421,10 +1448,16 @@ body{
           <div class="material-date">${formatDate(item.createdTime)}</div>
         </div>
       </div>
-    `).join('');
+    `;
+  }
 
-    // 썸네일 아직 생성 안 됐을 때 깨진 이미지 대신 fallback 표시
-    materialsGrid.querySelectorAll('img[data-fallback]').forEach(img => {
+  // 클릭 시 새 탭에서 구글 드라이브 뷰어로 열기 (페이지 이동 없음)
+  function openInNewTab(item){
+    window.open(item.driveViewURL || item.pdfURL, '_blank', 'noopener');
+  }
+
+  function bindCards(container, lookupList){
+    container.querySelectorAll('img[data-fallback]').forEach(img => {
       img.addEventListener('error', function(){
         const box = document.createElement('div');
         box.className = 'thumb-fallback';
@@ -1432,61 +1465,91 @@ body{
         this.replaceWith(box);
       }, { once: true });
     });
-
-    materialsGrid.querySelectorAll('.material-card').forEach(card => {
+    container.querySelectorAll('.material-card').forEach(card => {
       card.addEventListener('click', () => {
-        const item = currentDocs.find(x => x.id === card.dataset.id);
-        if(item) openViewer(item);
+        const item = lookupList.find(x => x.id === card.dataset.id);
+        if(item) openInNewTab(item);
       });
     });
   }
 
+  function renderGrid(){
+    const docs = visibleDocs();
+    materialsCount.textContent = docs.length ? `총 ${docs.length}건` : '';
+    materialsEmpty.style.display = docs.length ? 'none' : 'block';
+    if(docs.length === 0) materialsEmpty.textContent = '해당 조건의 자료가 없습니다.';
+
+    const mobile = isMobile();
+    const limit = mobile ? MOBILE_LIMIT : DESKTOP_LIMIT;
+    const showAll = mobile ? false : desktopExpanded;
+    const shown = showAll ? docs : docs.slice(0, limit);
+    const remaining = docs.length - shown.length;
+
+    materialsGrid.innerHTML = shown.map(cardHTML).join('');
+    bindCards(materialsGrid, docs);
+
+    if(remaining > 0){
+      materialsLoadMoreBtn.style.display = 'inline-flex';
+      materialsLoadMoreBtn.textContent = `더 보기 (${remaining})`;
+    } else {
+      materialsLoadMoreBtn.style.display = 'none';
+    }
+  }
+
+  materialsLoadMoreBtn.addEventListener('click', () => {
+    const docs = visibleDocs();
+    if(isMobile()){
+      const rest = docs.slice(MOBILE_LIMIT);
+      materialsMoreGrid.innerHTML = rest.map(cardHTML).join('');
+      bindCards(materialsMoreGrid, docs);
+      openMoreOverlay();
+    } else {
+      desktopExpanded = true;
+      renderGrid();
+    }
+  });
+
+  window.addEventListener('resize', () => { renderGrid(); });
+
   /* ---- 월 이동 / 카테고리 탭 / 보험사 필터 이벤트 ---- */
   materialsPrevMonth.addEventListener('click', () => {
     selectedMonth = selectedMonth ? shiftMonth(selectedMonth, -1) : new Date().toISOString().slice(0,7);
+    desktopExpanded = false;
     renderAll();
   });
   materialsNextMonth.addEventListener('click', () => {
     selectedMonth = selectedMonth ? shiftMonth(selectedMonth, 1) : new Date().toISOString().slice(0,7);
+    desktopExpanded = false;
     renderAll();
   });
   materialsAllMonths.addEventListener('click', () => {
     selectedMonth = null;
+    desktopExpanded = false;
     renderAll();
   });
   document.querySelectorAll('.cat-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedCategory = btn.dataset.cat;
       selectedInsurer = '';
+      desktopExpanded = false;
       renderAll();
     });
   });
   materialsInsurerFilter.addEventListener('change', () => {
     selectedInsurer = materialsInsurerFilter.value;
+    desktopExpanded = false;
     renderGrid();
   });
 
-  /* ---- 뷰어 (구글 드라이브 자체 미리보기를 iframe에 삽입) ---- */
-  const materialViewer = document.getElementById('materialViewer');
-  const materialViewerFrame = document.getElementById('materialViewerFrame');
-  const materialViewerTitle = document.getElementById('materialViewerTitle');
-  const materialViewerOpenNew = document.getElementById('materialViewerOpenNew');
-  const materialViewerClose = document.getElementById('materialViewerClose');
+  /* ---- 모바일 "더보기" 팝업 ---- */
+  const materialsMoreOverlay = document.getElementById('materialsMoreOverlay');
+  const materialsMoreGrid = document.getElementById('materialsMoreGrid');
+  const materialsMoreCloseBtn = document.getElementById('materialsMoreCloseBtn');
 
-  function openViewer(item){
-    materialViewerTitle.textContent = item.title;
-    materialViewerFrame.src = item.pdfURL;
-    materialViewerOpenNew.href = item.driveViewURL || item.pdfURL;
-    materialViewer.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeViewer(){
-    materialViewer.classList.remove('open');
-    materialViewerFrame.src = '';
-    document.body.style.overflow = '';
-  }
-  materialViewerClose.addEventListener('click', closeViewer);
-  materialViewer.addEventListener('click', e => { if(e.target === materialViewer) closeViewer(); });
+  function openMoreOverlay(){ materialsMoreOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeMoreOverlay(){ materialsMoreOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  materialsMoreCloseBtn.addEventListener('click', closeMoreOverlay);
+  materialsMoreOverlay.addEventListener('click', e => { if(e.target === materialsMoreOverlay) closeMoreOverlay(); });
 
   /* ---- 관리자 로그인/로그아웃 (Google OAuth + 이메일 화이트리스트) ---- */
   const materialsLoginOverlay = document.getElementById('materialsLoginOverlay');
@@ -1510,7 +1573,7 @@ body{
   materialsUploadOverlay.addEventListener('click', e => { if(e.target === materialsUploadOverlay) closeUpload(); });
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
-    closeViewer(); closeLogin(); closeUpload();
+    closeLogin(); closeUpload(); closeMoreOverlay();
   });
 
   function setAdminState(admin){
