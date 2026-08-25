@@ -1213,13 +1213,14 @@ body{
     const timelineCounter = createLiveCounter(document.getElementById('timelineLiveNum'));
     const gbarLive = document.getElementById('gbarLive');
 
-    // 실제 목표값이 오기 전, 대략적인 기준선(3,400)까지 0에서 미리 천천히 올려둔다.
-    // 응답이 빨리 오면 goTo()가 그 진행 상태에서 바로 이어받아 최종값으로 향한다.
+    // 실제 목표값이 오기 전, 대략적인 기준선(3,400)까지 0에서 미리 아주 천천히 올려둔다.
+    // 이 구간을 넉넉히 길게 잡아서, 실제 값이 도착하는 시점에는 거의 항상 "아직 움직이는 중"이 되도록 함
+    // → 다 도착해서 멈춰버린 뒤에 새로 출발하면 그 순간이 뚝 끊겨 보이기 때문.
     const PRELIM_TARGET = 3400;
-    heroCounter.goTo(PRELIM_TARGET, 2600);
-    statsCounter.goTo(PRELIM_TARGET, 2600);
-    gbarCounter.goTo(PRELIM_TARGET, 2600);
-    timelineCounter.goTo(PRELIM_TARGET, 2600);
+    heroCounter.goTo(PRELIM_TARGET, 6000);
+    statsCounter.goTo(PRELIM_TARGET, 6000);
+    gbarCounter.goTo(PRELIM_TARGET, 6000);
+    timelineCounter.goTo(PRELIM_TARGET, 6000);
 
     if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 여기서 멈춤 (예비 애니메이션만 재생)
 
@@ -1236,10 +1237,10 @@ body{
         if(count === null) return;
         if(!alreadyCounted) localStorage.setItem('consultCountedDate', today);
 
-        heroCounter.goTo(count, 700);
-        statsCounter.goTo(count, 700);
-        gbarCounter.goTo(count, 700);
-        timelineCounter.goTo(count, 700);
+        heroCounter.goTo(count, 1500);
+        statsCounter.goTo(count, 1500);
+        gbarCounter.goTo(count, 1500);
+        timelineCounter.goTo(count, 1500);
         if(gbarLive) gbarLive.dataset.value = String(count);
       })
       .catch(err => console.error('상담 건수 카운터 연동 실패', err));
@@ -1642,7 +1643,21 @@ body{
     }
   });
 
-  window.addEventListener('resize', () => { renderGrid(); });
+  // 모바일 스크롤 중 주소창이 접혔다 펴지는 것만으로도 resize 이벤트가 계속 발생해서
+  // 그때마다 목록을 다시 그리면 썸네일이 재로딩되며 깜빡이는 문제가 있었음.
+  // → PC/모바일 경계(640px)를 실제로 넘나들 때만, 그것도 살짝 지연 후 다시 그리도록 수정.
+  let lastIsMobileState = isMobile();
+  let materialsResizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(materialsResizeTimer);
+    materialsResizeTimer = setTimeout(() => {
+      const nowMobile = isMobile();
+      if(nowMobile !== lastIsMobileState){
+        lastIsMobileState = nowMobile;
+        renderGrid();
+      }
+    }, 250);
+  });
 
   /* ---- 월 이동 / 카테고리 탭 / 보험사 필터 이벤트 ---- */
   materialsPrevMonth.addEventListener('click', () => {
