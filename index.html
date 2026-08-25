@@ -1528,7 +1528,7 @@ body{
   /* 보험사 목록 — 필요하면 자유롭게 추가/수정하세요 */
   const INSURERS = {
     '손해보험': ['삼성화재','현대해상','DB손보','KB손보','메리츠화재','흥국화재','롯데손보','하나손보','한화손보','NH농협손보','MG손보','AXA손보','캐롯손보','라이나손보'],
-    '생명보험': ['삼성생명','한화생명','교보생명','신한라이프','NH농협생명','미래에셋생명','동양생명','KB라이프생명','흥국생명','DB생명','메트라이프생명','푸르덴셜생명','ABL생명','라이나생명','처브라이프생명']
+    '생명보험': ['삼성생명','한화생명','교보생명','신한라이프','NH농협생명','미래에셋생명','동양생명','KB라이프생명','흥국생명','DB생명','메트라이프생명','푸르덴셜생명','ABL생명','라이나생명','처브라이프생명','KDB생명']
   };
 
   const materialsGrid = document.getElementById('materialsGrid');
@@ -1911,7 +1911,14 @@ body{
       xhr.upload.onprogress = (e) => { if(e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
       xhr.onload = () => {
         if(xhr.status >= 200 && xhr.status < 300){ resolve(JSON.parse(xhr.responseText)); }
-        else reject(new Error('Drive 업로드 실패: ' + xhr.status));
+        else {
+          let detail = '';
+          try {
+            const errBody = JSON.parse(xhr.responseText);
+            detail = (errBody && errBody.error && (errBody.error.message || (errBody.error.errors && errBody.error.errors[0] && errBody.error.errors[0].reason))) || '';
+          } catch(e){ /* 응답이 JSON이 아니면 무시 */ }
+          reject(new Error(`Drive 업로드 실패: ${xhr.status}${detail ? ' - ' + detail : ''}`));
+        }
       };
       xhr.onerror = () => reject(new Error('Drive 업로드 중 네트워크 오류'));
       xhr.send(body);
@@ -1922,6 +1929,16 @@ body{
     return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
       method: 'DELETE',
       headers: { Authorization: 'Bearer ' + token }
+    }).then(async res => {
+      if(!res.ok){
+        let detail = '';
+        try{
+          const errBody = await res.json();
+          detail = (errBody && errBody.error && errBody.error.message) || '';
+        } catch(e){ /* 응답이 JSON이 아니면 무시 */ }
+        throw new Error(`Drive 삭제 실패: ${res.status}${detail ? ' - ' + detail : ''}`);
+      }
+      return res;
     });
   }
 
