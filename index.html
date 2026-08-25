@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>심준호 | 보험 컨설팅</title>
-<meta name="description" content="심준호 보험 컨설팅 - 보험, 그 이상을 하다.">
+<title>AZ금융서비스 심준호 부지점장 | 보험 컨설팅</title>
+<meta name="description" content="AZ금융서비스 심준호 부지점장 - 보험, 그 이상을 하다.">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY">
 
@@ -161,6 +161,22 @@ body{
   .hero h1 .accent{ color:#fff; }
   .hero-sub{ margin-top:22px; max-width:460px; color:rgba(255,255,255,0.82); font-size:16px; }
   .hero-cta{ display:flex; gap:14px; margin-top:36px; flex-wrap:wrap; }
+  .hero-counter{
+    display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:9px 16px;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); border-radius:999px;
+    font-size:13px; color:rgba(255,255,255,0.92); font-weight:600;
+  }
+  .hero-counter strong{ color:#fff; font-weight:800; font-size:14.5px; }
+  .hero-counter-dot{
+    width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0;
+    box-shadow:0 0 0 0 rgba(74,222,128,0.6); animation:heroCounterPulse 1.8s ease-out infinite;
+  }
+  @keyframes heroCounterPulse{
+    0%{ box-shadow:0 0 0 0 rgba(74,222,128,0.55); }
+    70%{ box-shadow:0 0 0 7px rgba(74,222,128,0); }
+    100%{ box-shadow:0 0 0 0 rgba(74,222,128,0); }
+  }
+  @media (max-width:640px){ .hero-counter{ font-size:12px; padding:7px 13px; } }
   .hero .btn-outline{ background:#fff; border-color:#fff; color:var(--blue); }
   .hero .btn-outline:hover{ background:transparent; color:#fff; border-color:#fff; }
   .hero-photo{
@@ -576,7 +592,7 @@ body{
     <a href="#top" class="brand">
 
       <span class="mark"><img src="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY"></span>
-      <span class="b-text"><span class="b-name">심준호</span><span class="b-tag">INSURANCE CONSULTING</span></span>
+      <span class="b-text"><span class="b-name">심준호</span><span class="b-tag">AZ금융서비스 부지점장</span></span>
     </a>
     <nav class="links">
       <a href="#client">소개</a>
@@ -596,7 +612,7 @@ body{
   <div class="mobile-menu-top">
     <a href="#top" class="brand">
       <span class="mark"><img src="https://lh3.googleusercontent.com/d/1YcB2LJi0nq0shr_CX8fwqxQkDEPgs5e9"></span>
-      <span class="b-text"><span class="b-name">심준호</span><span class="b-tag">INSURANCE CONSULTING</span></span>
+      <span class="b-text"><span class="b-name">심준호</span><span class="b-tag">AZ금융서비스 부지점장</span></span>
     </a>
     <button type="button" class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">✕</button>
   </div>
@@ -617,12 +633,16 @@ body{
 <section class="hero" id="top">
   <div class="wrap hero-inner">
     <div class="reveal">
-      <div class="hero-tag">Insurance Consulting</div>
+      <div class="hero-tag">AZ금융서비스 · Insurance Consulting</div>
       <h1>보험,<br>그 <span class="accent">이상</span>을 하다.</h1>
-      <p class="hero-sub">심준호입니다. 팩트에 기반한 비교설계와 체계적인 사후관리로 고객님의 평생 보험 파트너가 되겠습니다.</p>
+      <p class="hero-sub">AZ금융서비스 심준호 부지점장입니다. 팩트에 기반한 비교설계와 체계적인 사후관리로 고객님의 평생 보험 파트너가 되겠습니다.</p>
       <div class="hero-cta">
         <a href="#" id="btnKakaoHero" class="btn btn-kakao">카카오톡 상담</a>
         <a href="#service" class="btn btn-outline">자세히 보기</a>
+      </div>
+      <div class="hero-counter reveal">
+        <span class="hero-counter-dot"></span>
+        누적 상담 건수 <strong id="heroConsultCount">3,400</strong>건
       </div>
     </div>
     <div class="hero-photo reveal">
@@ -637,11 +657,11 @@ body{
   <div class="wrap">
     <div class="band-head reveal">
       <span class="eyebrow">Our Client</span>
-      <h2>심준호 누적 상담 건수</h2>
+      <h2>AZ금융서비스 심준호 부지점장 누적 상담 건수</h2>
       <p>차별화된 컨설팅과 체계적인 고객관리의 결과물입니다. 2026년 7월 기준</p>
     </div>
     <div class="stat-row reveal-group">
-      <div><div class="num">3,400<small>+</small></div><div class="lbl">누적 상담 건수</div></div>
+      <div><div class="num" id="statsConsultCount">3,400<small>+</small></div><div class="lbl">누적 상담 건수</div></div>
       <div><div class="num">11<small>년+</small></div><div class="lbl">보험 컨설팅 경력</div></div>
       <div><div class="num">98<small>%</small></div><div class="lbl">재상담 만족도</div></div>
     </div>
@@ -871,8 +891,8 @@ body{
     <div class="footer-top">
       <div class="footer-brand">
         <img class="cert-logo" src="https://lh3.googleusercontent.com/d/1eap4mqRfCjRVRUYhmMtyKo3HhBXW0Ufy" style="width:190px; height:auto;">
-        <a href="#top" class="brand"><span class="mark"><img src="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY"></span><span class="b-text"><span class="b-name">심준호</span><span class="b-tag">INSURANCE CONSULTING</span></span></a>
-        <p>심준호의 개인 보험 컨설팅 소개 페이지입니다. 보험상품 안내는 요약 정보이며, 세부 보장내용은 약관 및 상품설명서를 통해 반드시 확인하시기 바랍니다.</p>
+        <a href="#top" class="brand"><span class="mark"><img src="https://lh3.googleusercontent.com/d/1-szkjfUmt-d--CVvDYhkn6AZaUMc6QgY"></span><span class="b-text"><span class="b-name">심준호</span><span class="b-tag">AZ금융서비스 부지점장</span></span></a>
+        <p>AZ금융서비스 심준호 부지점장의 개인 보험 컨설팅 소개 페이지입니다. 보험상품 안내는 요약 정보이며, 세부 보장내용은 약관 및 상품설명서를 통해 반드시 확인하시기 바랍니다.</p>
       </div>
       <div class="footer-links">
         <a href="#" id="privacyPolicyLink">개인정보보호방침</a>
@@ -880,7 +900,7 @@ body{
       </div>
     </div>
     <div class="footer-legal">
-      담당 : 심준호 &nbsp;|&nbsp; 연락처 : 010-7280-0823 &nbsp;|&nbsp; 이메일 : azjunho@gmail.com
+      담당 : AZ금융서비스 심준호 부지점장 &nbsp;|&nbsp; 연락처 : 010-7280-0823 &nbsp;|&nbsp; 이메일 : azjunho@gmail.com
     </div>
     <div class="footer-bottom">
       <p>Copyright ⓒ 2026 심준호 보험 컨설팅. All rights reserved.</p>
@@ -1112,6 +1132,34 @@ body{
    document.getElementById('floatingKakaoBtn')]
     .forEach(el => el && el.setAttribute('href', CONFIG.kakaoUrl));
   document.querySelectorAll('a[href="tel:01072800823"]').forEach(el => el.setAttribute('href','tel:'+CONFIG.phoneTel));
+
+  /* ---- 누적 상담 건수 카운터 (Google Apps Script Web App 연동) ---- */
+  /* ⚠️ 아래 URL을 본인의 Apps Script 배포 URL로 교체하세요 (설정 가이드 참고) */
+  const CONSULT_COUNTER_URL = "https://script.google.com/macros/s/AKfycbyWeOil7FZHTvTSDIy3xL7tjd2RQJP_hdgeAL8J_hQQNiwngj2RD1iSQ7b44MHHHlNTEg/exec";
+
+  (function initConsultCounter(){
+    const heroEl = document.getElementById('heroConsultCount');
+    const statsEl = document.getElementById('statsConsultCount');
+    if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 정적 숫자 유지
+
+    // 같은 방문자가 같은 날 여러 번 들어와도 중복 집계되지 않도록 '하루 1회'만 증가
+    const today = new Date().toISOString().slice(0,10);
+    const countedDate = localStorage.getItem('consultCountedDate');
+    const alreadyCounted = countedDate === today;
+    const url = CONSULT_COUNTER_URL + (alreadyCounted ? '?mode=read' : '?mode=increment');
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const count = data && typeof data.count === 'number' ? data.count : null;
+        if(count === null) return;
+        if(!alreadyCounted) localStorage.setItem('consultCountedDate', today);
+        const formatted = count.toLocaleString('ko-KR');
+        if(heroEl) heroEl.textContent = formatted;
+        if(statsEl) statsEl.innerHTML = formatted + '<small>+</small>';
+      })
+      .catch(err => console.error('상담 건수 카운터 연동 실패', err));
+  })();
 
   /* 개인정보 처리방침 팝업 */
   (function initPrivacyModal(){
