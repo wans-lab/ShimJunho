@@ -642,7 +642,7 @@ body{
       </div>
       <div class="hero-counter reveal">
         <span class="hero-counter-dot"></span>
-        누적 상담 건수 <strong id="heroConsultCount">3,400</strong>건
+        누적 상담 건수 <strong id="heroConsultCount">0</strong>건
       </div>
     </div>
     <div class="hero-photo reveal">
@@ -661,7 +661,7 @@ body{
       <p>차별화된 컨설팅과 체계적인 고객관리의 결과물입니다. 2026년 7월 기준</p>
     </div>
     <div class="stat-row reveal-group">
-      <div><div class="num" id="statsConsultCount">3,400</div><div class="lbl">누적 상담 건수</div></div>
+      <div><div class="num" id="statsConsultCount">0</div><div class="lbl">누적 상담 건수</div></div>
       <div><div class="num">11<small>년+</small></div><div class="lbl">보험 컨설팅 경력</div></div>
       <div><div class="num">98<small>%</small></div><div class="lbl">재상담 만족도</div></div>
     </div>
@@ -684,7 +684,7 @@ body{
           <div class="gbar-year">2025</div>
         </div>
         <div class="gbar-item is-peak" data-value="3400" id="gbarLive">
-          <div class="gbar-num" id="gbarLiveNum">3,400건</div>
+          <div class="gbar-num" id="gbarLiveNum">0건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
           <div class="gbar-year">2026</div>
         </div>
@@ -712,7 +712,7 @@ body{
       <div class="t-item"><div class="dot"></div><div class="yr">2019</div><p>우수인증설계사 선정<br>전문성 공식 인증</p></div>
       <div class="t-item"><div class="dot"></div><div class="yr">2022</div><p>대형 GA 합류<br>전문 컨설팅 체계 구축</p></div>
       <div class="t-item"><div class="dot"></div><div class="yr">2024</div><p>누적 상담 3,000건 돌파<br>고객관리 체계 고도화</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2026</div><p>누적 상담 <span id="timelineLiveNum">3,400</span>건<br>지금도 진행 중</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2026</div><p>누적 상담 <span id="timelineLiveNum">0</span>건<br>지금도 진행 중</p></div>
     </div>
   </div>
 </section>
@@ -1137,31 +1137,65 @@ body{
   /* ⚠️ 아래 URL을 본인의 Apps Script 배포 URL로 교체하세요 (설정 가이드 참고) */
   const CONSULT_COUNTER_URL = "https://script.google.com/macros/s/AKfycbyWeOil7FZHTvTSDIy3xL7tjd2RQJP_hdgeAL8J_hQQNiwngj2RD1iSQ7b44MHHHlNTEg/exec";
 
-  // 화면에 보이는 숫자를 목표값까지 부드럽게 카운트업 (3,400 → 3,404가 툭 튀지 않도록)
-  function animateCount(el, from, to, duration){
-    if(!el) return;
-    if(from === to){ el.textContent = to.toLocaleString('ko-KR'); return; }
-    const start = performance.now();
-    function tick(now){
-      const p = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3); // ease-out
-      const current = Math.round(from + (to - from) * eased);
-      el.textContent = current.toLocaleString('ko-KR');
-      if(p < 1) requestAnimationFrame(tick);
-      else el.textContent = to.toLocaleString('ko-KR');
+  /*
+    0부터 바로 카운트업을 시작하고, 실제 값(fetch 응답)이 도착하면
+    "멈췄다가 다시 시작"하지 않고 그 순간의 진행 상태 그대로 목표값만
+    갱신해서 이어서 계속 올라가도록 만든 카운터.
+  */
+  function createLiveCounter(el, opts){
+    opts = opts || {};
+    const suffix = opts.suffix || '';
+    let currentVal = 0;
+    let fromVal = 0;
+    let targetVal = 0;
+    let startTime = null;
+    let duration = 1200;
+    let rafId = null;
+
+    function render(v){
+      if(el) el.textContent = v.toLocaleString('ko-KR') + suffix;
     }
-    requestAnimationFrame(tick);
+    function tick(now){
+      if(startTime === null) startTime = now;
+      const p = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out
+      currentVal = fromVal + (targetVal - fromVal) * eased;
+      render(Math.round(currentVal));
+      if(p < 1){
+        rafId = requestAnimationFrame(tick);
+      } else {
+        currentVal = targetVal;
+        render(targetVal);
+      }
+    }
+    // 목표값을 새로 설정 (지금 올라가고 있는 값에서 이어서 새 목표로 향함)
+    function goTo(newTarget, newDuration){
+      fromVal = currentVal;
+      targetVal = newTarget;
+      duration = newDuration || 900;
+      startTime = null;
+      if(rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(tick);
+    }
+    return { goTo };
   }
 
   (function initConsultCounter(){
-    const heroEl = document.getElementById('heroConsultCount');
-    const statsEl = document.getElementById('statsConsultCount');
+    const heroCounter = createLiveCounter(document.getElementById('heroConsultCount'));
+    const statsCounter = createLiveCounter(document.getElementById('statsConsultCount'));
+    const gbarCounter = createLiveCounter(document.getElementById('gbarLiveNum'), { suffix: '건' });
+    const timelineCounter = createLiveCounter(document.getElementById('timelineLiveNum'));
     const gbarLive = document.getElementById('gbarLive');
-    const gbarLiveNum = document.getElementById('gbarLiveNum');
-    const timelineLiveNum = document.getElementById('timelineLiveNum');
-    if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 정적 숫자 유지
 
-    const BASE = 3400; // 화면에 미리 표시돼 있는 기본값 (카운트업 시작 지점)
+    // 실제 목표값이 오기 전, 대략적인 기준선(3,400)까지 0에서 미리 천천히 올려둔다.
+    // 응답이 빨리 오면 goTo()가 그 진행 상태에서 바로 이어받아 최종값으로 향한다.
+    const PRELIM_TARGET = 3400;
+    heroCounter.goTo(PRELIM_TARGET, 2600);
+    statsCounter.goTo(PRELIM_TARGET, 2600);
+    gbarCounter.goTo(PRELIM_TARGET, 2600);
+    timelineCounter.goTo(PRELIM_TARGET, 2600);
+
+    if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 여기서 멈춤 (예비 애니메이션만 재생)
 
     // 같은 방문자가 같은 날 여러 번 들어와도 중복 집계되지 않도록 '하루 1회'만 증가
     const today = new Date().toISOString().slice(0,10);
@@ -1176,24 +1210,11 @@ body{
         if(count === null) return;
         if(!alreadyCounted) localStorage.setItem('consultCountedDate', today);
 
-        animateCount(heroEl, BASE, count, 900);
-        animateCount(statsEl, BASE, count, 900);
-        // gbar-num에는 숫자 뒤에 "건" 글자가 붙어야 하므로 별도 처리
-        if(gbarLiveNum){
-          const start = performance.now();
-          const duration = 900;
-          function tickBar(now){
-            const p = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - p, 3);
-            const current = Math.round(BASE + (count - BASE) * eased);
-            gbarLiveNum.textContent = current.toLocaleString('ko-KR') + '건';
-            if(p < 1) requestAnimationFrame(tickBar);
-            else gbarLiveNum.textContent = count.toLocaleString('ko-KR') + '건';
-          }
-          requestAnimationFrame(tickBar);
-        }
+        heroCounter.goTo(count, 700);
+        statsCounter.goTo(count, 700);
+        gbarCounter.goTo(count, 700);
+        timelineCounter.goTo(count, 700);
         if(gbarLive) gbarLive.dataset.value = String(count);
-        animateCount(timelineLiveNum, BASE, count, 900);
       })
       .catch(err => console.error('상담 건수 카운터 연동 실패', err));
   })();
