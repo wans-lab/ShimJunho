@@ -658,7 +658,7 @@ body{
     <div class="band-head reveal">
       <span class="eyebrow">Our Client</span>
       <h2>AZ금융서비스 심준호 부지점장 누적 상담 건수</h2>
-      <p>차별화된 컨설팅과 체계적인 고객관리의 결과물입니다. 2026년 7월 기준</p>
+      <p>차별화된 컨설팅과 체계적인 고객관리의 결과물입니다. <span id="statsAsOfDate">2026년 7월 기준</span></p>
     </div>
     <div class="stat-row reveal-group">
       <div><div class="num" id="statsConsultCount">0</div><div class="lbl">누적 상담 건수</div></div>
@@ -676,24 +676,24 @@ body{
         <div class="gbar-item" data-value="2148">
           <div class="gbar-num">2,148건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
-          <div class="gbar-year">2024</div>
+          <div class="gbar-year" id="gbarYear1">2024</div>
         </div>
         <div class="gbar-item" data-value="2870">
           <div class="gbar-num">2,870건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
-          <div class="gbar-year">2025</div>
+          <div class="gbar-year" id="gbarYear2">2025</div>
         </div>
         <div class="gbar-item is-peak" data-value="3400" id="gbarLive">
           <div class="gbar-num" id="gbarLiveNum">0건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
-          <div class="gbar-year">2026</div>
+          <div class="gbar-year" id="gbarYear3">2026</div>
         </div>
       </div>
       <div class="growth-text reveal">
         <span class="eyebrow">Growth</span>
         <h2>쉬지 않고 성장해온<br>누적 상담 건수</h2>
         <p>매년 꾸준히 늘어난 상담 건수는 그만큼 다시 찾아주신 고객님들이 많다는 증거입니다.</p>
-        <p>2024~2026년 누적 상담 건수</p>
+        <p id="growthYearRange">2024~2026년 누적 상담 건수</p>
       </div>
     </div>
   </div>
@@ -708,11 +708,11 @@ body{
       <p></p>
     </div>
     <div class="timeline reveal-group">
-      <div class="t-item"><div class="dot"></div><div class="yr">2015</div><p>보험업 입문<br>보험 컨설팅 첫걸음</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2019</div><p>우수인증설계사 선정<br>전문성 공식 인증</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2022</div><p>대형 GA 합류<br>전문 컨설팅 체계 구축</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2024</div><p>누적 상담 3,000건 돌파<br>고객관리 체계 고도화</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2026</div><p>누적 상담 <span id="timelineLiveNum">0</span>건<br>지금도 진행 중</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2016</div><p>보험업 입문<br>보험 컨설팅 첫걸음</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2019</div><p>부지점장 진급<br>전문성과 성과를 공식 인정받다</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2022</div><p>전문 컨설팅 체계 구축<br>맞춤형 상담 프로세스 정립</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2024</div><p>누적 상담 2,800건 돌파<br>고객관리 체계 고도화</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr" id="timelineYear">2026</div><p>누적 상담 <span id="timelineLiveNum">0</span>건 이상 돌파<br>지금도 진행 중</p></div>
     </div>
   </div>
 </section>
@@ -903,7 +903,7 @@ body{
       담당 : AZ금융서비스 심준호 부지점장 &nbsp;|&nbsp; 연락처 : 010-7280-0823 &nbsp;|&nbsp; 이메일 : azjunho@gmail.com
     </div>
     <div class="footer-bottom">
-      <p>Copyright ⓒ 2026 심준호 보험 컨설팅. All rights reserved.</p>
+      <p>Copyright ⓒ <span id="copyrightYear">2026</span> 심준호 보험 컨설팅. All rights reserved.</p>
     </div>
   </div>
 </footer>
@@ -1132,6 +1132,32 @@ body{
    document.getElementById('floatingKakaoBtn')]
     .forEach(el => el && el.setAttribute('href', CONFIG.kakaoUrl));
   document.querySelectorAll('a[href="tel:01072800823"]').forEach(el => el.setAttribute('href','tel:'+CONFIG.phoneTel));
+
+  /* ---- 날짜/연도 자동 갱신: 해가 바뀌어도 코드 수정 없이 항상 "현재" 기준으로 표시 ---- */
+  (function initDynamicDates(){
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+
+    const statsAsOf = document.getElementById('statsAsOfDate');
+    if(statsAsOf) statsAsOf.textContent = `${y}년 ${m}월 기준`;
+
+    const gy1 = document.getElementById('gbarYear1');
+    const gy2 = document.getElementById('gbarYear2');
+    const gy3 = document.getElementById('gbarYear3');
+    if(gy1) gy1.textContent = y - 2;
+    if(gy2) gy2.textContent = y - 1;
+    if(gy3) gy3.textContent = y;
+
+    const growthRange = document.getElementById('growthYearRange');
+    if(growthRange) growthRange.textContent = `${y - 2}~${y}년 누적 상담 건수`;
+
+    const timelineYear = document.getElementById('timelineYear');
+    if(timelineYear) timelineYear.textContent = y;
+
+    const copyrightYear = document.getElementById('copyrightYear');
+    if(copyrightYear) copyrightYear.textContent = y;
+  })();
 
   /* ---- 누적 상담 건수 카운터 (Google Apps Script Web App 연동) ---- */
   /* ⚠️ 아래 URL을 본인의 Apps Script 배포 URL로 교체하세요 (설정 가이드 참고) */
