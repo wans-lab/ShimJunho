@@ -661,7 +661,7 @@ body{
       <p>차별화된 컨설팅과 체계적인 고객관리의 결과물입니다. 2026년 7월 기준</p>
     </div>
     <div class="stat-row reveal-group">
-      <div><div class="num" id="statsConsultCount">3,400<small>+</small></div><div class="lbl">누적 상담 건수</div></div>
+      <div><div class="num" id="statsConsultCount">3,400</div><div class="lbl">누적 상담 건수</div></div>
       <div><div class="num">11<small>년+</small></div><div class="lbl">보험 컨설팅 경력</div></div>
       <div><div class="num">98<small>%</small></div><div class="lbl">재상담 만족도</div></div>
     </div>
@@ -673,27 +673,27 @@ body{
   <div class="wrap">
     <div class="growth-wrap">
       <div class="growth-chart" id="growthChart">
-        <div class="gbar-item" data-value="1800">
-          <div class="gbar-num">1,800건</div>
-          <div class="gbar-track"><div class="gbar-fill"></div></div>
-          <div class="gbar-year">2023</div>
-        </div>
-        <div class="gbar-item" data-value="2600">
-          <div class="gbar-num">2,600건</div>
+        <div class="gbar-item" data-value="2148">
+          <div class="gbar-num">2,148건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
           <div class="gbar-year">2024</div>
         </div>
-        <div class="gbar-item is-peak" data-value="3400">
-          <div class="gbar-num">3,400건</div>
+        <div class="gbar-item" data-value="2870">
+          <div class="gbar-num">2,870건</div>
           <div class="gbar-track"><div class="gbar-fill"></div></div>
           <div class="gbar-year">2025</div>
+        </div>
+        <div class="gbar-item is-peak" data-value="3400" id="gbarLive">
+          <div class="gbar-num" id="gbarLiveNum">3,400건</div>
+          <div class="gbar-track"><div class="gbar-fill"></div></div>
+          <div class="gbar-year">2026</div>
         </div>
       </div>
       <div class="growth-text reveal">
         <span class="eyebrow">Growth</span>
         <h2>쉬지 않고 성장해온<br>누적 상담 건수</h2>
         <p>매년 꾸준히 늘어난 상담 건수는 그만큼 다시 찾아주신 고객님들이 많다는 증거입니다.</p>
-        <p>2023~2025년 누적 상담 건수</p>
+        <p>2024~2026년 누적 상담 건수</p>
       </div>
     </div>
   </div>
@@ -712,7 +712,7 @@ body{
       <div class="t-item"><div class="dot"></div><div class="yr">2019</div><p>우수인증설계사 선정<br>전문성 공식 인증</p></div>
       <div class="t-item"><div class="dot"></div><div class="yr">2022</div><p>대형 GA 합류<br>전문 컨설팅 체계 구축</p></div>
       <div class="t-item"><div class="dot"></div><div class="yr">2024</div><p>누적 상담 3,000건 돌파<br>고객관리 체계 고도화</p></div>
-      <div class="t-item"><div class="dot"></div><div class="yr">2026</div><p>누적 상담 3,400건+<br>지금도 진행 중</p></div>
+      <div class="t-item"><div class="dot"></div><div class="yr">2026</div><p>누적 상담 <span id="timelineLiveNum">3,400</span>건<br>지금도 진행 중</p></div>
     </div>
   </div>
 </section>
@@ -1137,10 +1137,31 @@ body{
   /* ⚠️ 아래 URL을 본인의 Apps Script 배포 URL로 교체하세요 (설정 가이드 참고) */
   const CONSULT_COUNTER_URL = "https://script.google.com/macros/s/AKfycbyWeOil7FZHTvTSDIy3xL7tjd2RQJP_hdgeAL8J_hQQNiwngj2RD1iSQ7b44MHHHlNTEg/exec";
 
+  // 화면에 보이는 숫자를 목표값까지 부드럽게 카운트업 (3,400 → 3,404가 툭 튀지 않도록)
+  function animateCount(el, from, to, duration){
+    if(!el) return;
+    if(from === to){ el.textContent = to.toLocaleString('ko-KR'); return; }
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out
+      const current = Math.round(from + (to - from) * eased);
+      el.textContent = current.toLocaleString('ko-KR');
+      if(p < 1) requestAnimationFrame(tick);
+      else el.textContent = to.toLocaleString('ko-KR');
+    }
+    requestAnimationFrame(tick);
+  }
+
   (function initConsultCounter(){
     const heroEl = document.getElementById('heroConsultCount');
     const statsEl = document.getElementById('statsConsultCount');
+    const gbarLive = document.getElementById('gbarLive');
+    const gbarLiveNum = document.getElementById('gbarLiveNum');
+    const timelineLiveNum = document.getElementById('timelineLiveNum');
     if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 정적 숫자 유지
+
+    const BASE = 3400; // 화면에 미리 표시돼 있는 기본값 (카운트업 시작 지점)
 
     // 같은 방문자가 같은 날 여러 번 들어와도 중복 집계되지 않도록 '하루 1회'만 증가
     const today = new Date().toISOString().slice(0,10);
@@ -1154,9 +1175,25 @@ body{
         const count = data && typeof data.count === 'number' ? data.count : null;
         if(count === null) return;
         if(!alreadyCounted) localStorage.setItem('consultCountedDate', today);
-        const formatted = count.toLocaleString('ko-KR');
-        if(heroEl) heroEl.textContent = formatted;
-        if(statsEl) statsEl.innerHTML = formatted + '<small>+</small>';
+
+        animateCount(heroEl, BASE, count, 900);
+        animateCount(statsEl, BASE, count, 900);
+        // gbar-num에는 숫자 뒤에 "건" 글자가 붙어야 하므로 별도 처리
+        if(gbarLiveNum){
+          const start = performance.now();
+          const duration = 900;
+          function tickBar(now){
+            const p = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - p, 3);
+            const current = Math.round(BASE + (count - BASE) * eased);
+            gbarLiveNum.textContent = current.toLocaleString('ko-KR') + '건';
+            if(p < 1) requestAnimationFrame(tickBar);
+            else gbarLiveNum.textContent = count.toLocaleString('ko-KR') + '건';
+          }
+          requestAnimationFrame(tickBar);
+        }
+        if(gbarLive) gbarLive.dataset.value = String(count);
+        animateCount(timelineLiveNum, BASE, count, 900);
       })
       .catch(err => console.error('상담 건수 카운터 연동 실패', err));
   })();
@@ -1319,8 +1356,9 @@ body{
       if(played) return;
       played = true;
       chart.classList.add('in-view');
-      const maxVal = 3400;
-      chart.querySelectorAll('.gbar-item').forEach(item=>{
+      const items = chart.querySelectorAll('.gbar-item');
+      const maxVal = Math.max(...Array.from(items).map(i => parseFloat(i.dataset.value) || 0));
+      items.forEach(item=>{
         const val = parseFloat(item.dataset.value);
         const pct = Math.min(100, (val / maxVal) * 100);
         const fill = item.querySelector('.gbar-fill');
