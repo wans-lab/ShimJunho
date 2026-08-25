@@ -523,6 +523,32 @@ body{
   .materials-more-modal .privacy-modal-body{ max-height:74vh; overflow-y:auto; }
   .materials-more-modal .materials-grid{ margin-top:0; }
 
+  /* -------- Press (AZ금융서비스 보도자료) -------- */
+  .press-list{ border-top:1px solid var(--line); }
+  .press-row{
+    display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+    padding:20px 4px; border-bottom:1px solid var(--line); text-decoration:none; color:inherit;
+  }
+  .press-row:hover .press-title{ color:var(--blue); }
+  .press-row-main{ min-width:0; }
+  .press-source{ font-size:12.5px; font-weight:700; color:var(--blue); margin-bottom:6px; }
+  .press-title{
+    font-size:15px; font-weight:600; color:var(--ink); line-height:1.5;
+    overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    transition:color .15s ease;
+  }
+  .press-date{ font-size:13px; font-weight:700; color:var(--muted); white-space:nowrap; flex-shrink:0; }
+  .press-empty{ text-align:center; color:var(--muted); font-size:14px; padding:30px 0; }
+  .press-more{ text-align:center; margin-top:22px; }
+  .press-more a{ font-size:13.5px; font-weight:700; color:var(--blue); text-decoration:none; }
+  .press-more a:hover{ text-decoration:underline; }
+  @media (max-width:640px){
+    .press-row{ flex-direction:column; align-items:flex-start; gap:6px; padding:16px 2px; }
+    .press-title{ font-size:13.5px; }
+    .press-source{ font-size:11.5px; margin-bottom:3px; }
+    .press-date{ font-size:11.5px; }
+  }
+
   /* Login / upload modal helpers */
   .modal-sm{ max-width:440px; }
   .form-row{ margin-bottom:16px; }
@@ -852,6 +878,21 @@ body{
   </div>
 </section>
 
+<!-- PRESS (AZ금융서비스 보도자료/공지사항) -->
+<section class="band band-alt" id="press">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">Press</span>
+      <h2>AZ금융서비스 보도자료·공지사항</h2>
+      <p>AZ금융서비스의 언론 보도와 공식 소식을 모았습니다. 클릭하면 원문 기사로 이동합니다.</p>
+    </div>
+
+    <div class="press-list reveal-group" id="pressList"></div>
+    <p class="press-empty" id="pressEmpty" style="display:none;">지금은 보도자료를 불러올 수 없습니다.</p>
+    <p class="press-more"><a href="https://www.azfinancial.co.kr/media" target="_blank" rel="noopener">AZ금융서비스 미디어룸에서 더 보기 →</a></p>
+  </div>
+</section>
+
 <!-- MARQUEE GALLERY -->
 <section class="marquee-section">
   <div class="marquee-head wrap reveal">
@@ -1132,6 +1173,55 @@ body{
    document.getElementById('floatingKakaoBtn')]
     .forEach(el => el && el.setAttribute('href', CONFIG.kakaoUrl));
   document.querySelectorAll('a[href="tel:01072800823"]').forEach(el => el.setAttribute('href','tel:'+CONFIG.phoneTel));
+
+  /* ---- AZ금융서비스 보도자료/공지사항 (Apps Script 스크래퍼 연동) ---- */
+  /* ⚠️ 아래 URL을 본인의 Apps Script 배포 URL로 교체하세요 (설정 가이드 참고) */
+  const PRESS_FEED_URL = "https://script.google.com/macros/s/AKfycbwI1FSibrfEXLm2Y0B6Lmf6UdD4tTg5RW7eca41rgQF3t6T4EfdcAq3RgM4lRNVqWdCVg/exec";
+
+  (function initPressList(){
+    const listEl = document.getElementById('pressList');
+    const emptyEl = document.getElementById('pressEmpty');
+    if(!listEl) return;
+    if(!PRESS_FEED_URL || PRESS_FEED_URL.indexOf('YOUR_') === 0){
+      emptyEl.textContent = '보도자료 연동이 아직 설정되지 않았습니다.';
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    function escapeHtml(str){
+      return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+    function formatDate(iso){
+      const d = new Date(iso);
+      if(isNaN(d)) return iso;
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    fetch(PRESS_FEED_URL)
+      .then(res => res.json())
+      .then(data => {
+        const items = (data && data.items) ? data.items.slice(0, 8) : [];
+        if(!items.length){
+          emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
+          emptyEl.style.display = 'block';
+          return;
+        }
+        listEl.innerHTML = items.map(item => `
+          <a class="press-row" href="${item.url}" target="_blank" rel="noopener">
+            <div class="press-row-main">
+              <div class="press-source">${escapeHtml(item.source || '')}</div>
+              <div class="press-title">${escapeHtml(item.title)}</div>
+            </div>
+            <div class="press-date">${formatDate(item.date)}</div>
+          </a>
+        `).join('');
+      })
+      .catch(err => {
+        console.error('보도자료 목록 연동 실패', err);
+        emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
+        emptyEl.style.display = 'block';
+      });
+  })();
 
   /* ---- 날짜/연도 자동 갱신: 해가 바뀌어도 코드 수정 없이 항상 "현재" 기준으로 표시 ---- */
   (function initDynamicDates(){
