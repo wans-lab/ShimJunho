@@ -969,20 +969,9 @@ body{
       <button type="button" class="privacy-modal-close" id="materialsLoginCloseBtn" aria-label="닫기">×</button>
     </div>
     <div class="privacy-modal-body">
-      <form id="materialsLoginForm">
-        <div class="form-row">
-          <label for="materialsLoginEmail">이메일</label>
-          <input type="email" id="materialsLoginEmail" autocomplete="username" required>
-        </div>
-        <div class="form-row">
-          <label for="materialsLoginPw">비밀번호</label>
-          <input type="password" id="materialsLoginPw" autocomplete="current-password" required>
-        </div>
-        <p class="form-msg" id="materialsLoginMsg"></p>
-      </form>
-    </div>
-    <div class="privacy-modal-footer">
-      <button type="submit" form="materialsLoginForm">로그인</button>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">관리자 본인의 구글 계정으로 로그인하면 업로드 기능이 열립니다.</p>
+      <button type="button" class="btn btn-blue" id="materialsGoogleLoginBtn" style="width:100%;">Google 계정으로 로그인</button>
+      <p class="form-msg" id="materialsLoginMsg"></p>
     </div>
   </div>
 </div>
@@ -1208,36 +1197,16 @@ body{
   })();
 </script>
 
-<!-- 자료실: PDF.js (썸네일 생성용) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- 자료실: Google만 사용 (Firebase 없음) — API 키로 공개 목록 조회, OAuth로 관리자 업로드/삭제 -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, deleteDoc, doc,
-    query, orderBy, onSnapshot, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-  import {
-    getStorage, ref, uploadBytes, getDownloadURL, deleteObject
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
-  import {
-    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  /* ⚠️ 아래 4개 값을 본인 것으로 교체하세요 */
+  const GOOGLE_API_KEY = "AIzaSyBbeOY-NZuf9bIPf8pHQzci97pdPYTiPVY";
+  const GOOGLE_CLIENT_ID = "168974143628-nqg7rpokt5n7oec12btovf78be9lmdqq.apps.googleusercontent.com";
+  const DRIVE_FOLDER_ID = "1D70-qQHPWyk4m5Bv0qQ11a5PhkfLeSI7";
+  const ADMIN_EMAILS = ["tldhks7942@gmail.com","azjunho@gmail.com"];
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA_xLaF-zfI-aIidRxcJuflNzYEU9zFdtU",
-  authDomain: "simjunho-insurance.firebaseapp.com",
-  projectId: "simjunho-insurance",
-  storageBucket: "simjunho-insurance.firebasestorage.app",
-  messagingSenderId: "579184940244",
-  appId: "1:579184940244:web:f7585fc0daeb9741b41741"
-};
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  const auth = getAuth(app);
-
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
 
   const materialsGrid = document.getElementById('materialsGrid');
   const materialsCount = document.getElementById('materialsCount');
@@ -1252,24 +1221,37 @@ const firebaseConfig = {
   function escapeHtml(str){
     return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   }
-  function formatDate(ts){
-    if(!ts || !ts.toDate) return '';
-    const d = ts.toDate();
+  function formatDate(iso){
+    if(!iso) return '';
+    const d = new Date(iso);
     return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
   }
 
-  /* ---- 목록 실시간 렌더링 ---- */
-  const materialsQuery = query(collection(db, 'materials'), orderBy('uploadedAt', 'desc'));
-  onSnapshot(materialsQuery, (snap) => {
-    currentDocs = [];
-    snap.forEach(d => currentDocs.push({ id: d.id, ...d.data() }));
-    renderGrid();
-    renderManageList();
-  }, (err) => {
-    console.error('자료 목록을 불러오지 못했습니다', err);
-    materialsEmpty.textContent = '자료를 불러오지 못했습니다. firebaseConfig 설정을 확인해주세요.';
-    materialsEmpty.style.display = 'block';
-  });
+  /* ---- 목록 조회 (API 키로 공개 조회 — 방문자는 로그인 불필요) ---- */
+  async function refreshMaterials(){
+    try{
+      const q = encodeURIComponent(`'${DRIVE_FOLDER_ID}' in parents and mimeType='application/pdf' and trashed=false`);
+      const url = `https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=createdTime desc&fields=files(id,name,createdTime)&key=${GOOGLE_API_KEY}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('목록을 불러오지 못했습니다 (' + res.status + ')');
+      const data = await res.json();
+      currentDocs = (data.files || []).map(f => ({
+        id: f.id,
+        title: f.name.replace(/\.pdf$/i, ''),
+        createdTime: f.createdTime,
+        thumbURL: `https://drive.google.com/thumbnail?id=${f.id}&sz=w400`,
+        pdfURL: `https://drive.google.com/file/d/${f.id}/preview`,
+        driveViewURL: `https://drive.google.com/file/d/${f.id}/view`
+      }));
+      renderGrid();
+      renderManageList();
+    } catch(err){
+      console.error(err);
+      materialsEmpty.textContent = '자료를 불러오지 못했습니다. GOOGLE_API_KEY / DRIVE_FOLDER_ID 설정을 확인해주세요.';
+      materialsEmpty.style.display = 'block';
+    }
+  }
+  refreshMaterials();
 
   function renderGrid(){
     materialsCount.textContent = currentDocs.length ? `총 ${currentDocs.length}건` : '';
@@ -1279,13 +1261,11 @@ const firebaseConfig = {
     materialsGrid.innerHTML = currentDocs.map(item => `
       <div class="material-card" data-id="${item.id}">
         <div class="material-thumb">
-          ${item.thumbURL
-            ? `<img src="${item.thumbURL}" loading="lazy" alt="${escapeHtml(item.title)}">`
-            : `<div class="thumb-fallback">PDF</div>`}
+          <img src="${item.thumbURL}" loading="lazy" alt="${escapeHtml(item.title)}">
         </div>
         <div class="material-info">
           <div class="material-title">${escapeHtml(item.title)}</div>
-          <div class="material-date">${formatDate(item.uploadedAt)}</div>
+          <div class="material-date">${formatDate(item.createdTime)}</div>
         </div>
       </div>
     `).join('');
@@ -1298,7 +1278,7 @@ const firebaseConfig = {
     });
   }
 
-  /* ---- 뷰어 ---- */
+  /* ---- 뷰어 (구글 드라이브 자체 미리보기를 iframe에 삽입) ---- */
   const materialViewer = document.getElementById('materialViewer');
   const materialViewerFrame = document.getElementById('materialViewerFrame');
   const materialViewerTitle = document.getElementById('materialViewerTitle');
@@ -1308,7 +1288,7 @@ const firebaseConfig = {
   function openViewer(item){
     materialViewerTitle.textContent = item.title;
     materialViewerFrame.src = item.pdfURL;
-    materialViewerOpenNew.href = item.pdfURL;
+    materialViewerOpenNew.href = item.driveViewURL || item.pdfURL;
     materialViewer.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -1320,16 +1300,16 @@ const firebaseConfig = {
   materialViewerClose.addEventListener('click', closeViewer);
   materialViewer.addEventListener('click', e => { if(e.target === materialViewer) closeViewer(); });
 
-  /* ---- 관리자 로그인 ---- */
+  /* ---- 관리자 로그인/로그아웃 (Google OAuth + 이메일 화이트리스트) ---- */
   const materialsLoginOverlay = document.getElementById('materialsLoginOverlay');
-  const materialsLoginForm = document.getElementById('materialsLoginForm');
   const materialsLoginMsg = document.getElementById('materialsLoginMsg');
   const materialsLoginCloseBtn = document.getElementById('materialsLoginCloseBtn');
+  const materialsGoogleLoginBtn = document.getElementById('materialsGoogleLoginBtn');
   const materialsLogoutBtn = document.getElementById('materialsLogoutBtn');
   const materialsUploadBtn = document.getElementById('materialsUploadBtn');
   const materialsUploadOverlay = document.getElementById('materialsUploadOverlay');
 
-  function openLogin(){ materialsLoginOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function openLogin(){ materialsLoginMsg.textContent=''; materialsLoginMsg.className='form-msg'; materialsLoginOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeLogin(){ materialsLoginOverlay.classList.remove('open'); document.body.style.overflow = ''; }
   function openUpload(){ materialsUploadOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeUpload(){ materialsUploadOverlay.classList.remove('open'); document.body.style.overflow = ''; }
@@ -1345,29 +1325,116 @@ const firebaseConfig = {
     closeViewer(); closeLogin(); closeUpload();
   });
 
-  materialsLoginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    materialsLoginMsg.textContent = '';
-    materialsLoginMsg.className = 'form-msg';
-    const email = document.getElementById('materialsLoginEmail').value.trim();
-    const pw = document.getElementById('materialsLoginPw').value;
-    try{
-      await signInWithEmailAndPassword(auth, email, pw);
-      closeLogin();
-      materialsLoginForm.reset();
-    } catch(err){
-      materialsLoginMsg.textContent = '로그인에 실패했습니다. 이메일/비밀번호를 확인해주세요.';
-      materialsLoginMsg.className = 'form-msg error';
-    }
-  });
-  materialsLogoutBtn.addEventListener('click', () => signOut(auth));
-
-  onAuthStateChanged(auth, (user) => {
-    isAdmin = !!user;
+  function setAdminState(admin){
+    isAdmin = admin;
     materialsAdminBar.classList.toggle('on', isAdmin);
     materialsAdminBtn.style.display = isAdmin ? 'none' : '';
     renderManageList();
+  }
+
+  materialsLogoutBtn.addEventListener('click', () => {
+    driveAccessToken = null;
+    driveTokenExpiry = 0;
+    setAdminState(false);
   });
+
+  /* ---- 구글 OAuth (로그인 확인 + 업로드/삭제 모두 이 토큰으로 처리) ---- */
+  let driveTokenClient = null;
+  let driveAccessToken = null;
+  let driveTokenExpiry = 0;
+
+  function initDriveTokenClient(){
+    if(driveTokenClient || !window.google || !google.accounts) return;
+    driveTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: () => {} // 요청마다 아래에서 덮어씀
+    });
+  }
+
+  function ensureDriveAuth(promptConsent){
+    return new Promise((resolve, reject) => {
+      if(!window.google || !google.accounts){
+        reject(new Error('Google 로그인 스크립트를 아직 불러오는 중입니다. 잠시 후 다시 시도해주세요.'));
+        return;
+      }
+      initDriveTokenClient();
+      if(driveAccessToken && Date.now() < driveTokenExpiry){ resolve(driveAccessToken); return; }
+      driveTokenClient.callback = (resp) => {
+        if(resp.error){ reject(new Error('Google 계정 연결에 실패했습니다.')); return; }
+        driveAccessToken = resp.access_token;
+        driveTokenExpiry = Date.now() + (resp.expires_in ? resp.expires_in * 1000 : 3000 * 1000) - 30000;
+        resolve(driveAccessToken);
+      };
+      driveTokenClient.requestAccessToken({ prompt: promptConsent ? 'consent' : (driveAccessToken ? '' : 'consent') });
+    });
+  }
+
+  materialsGoogleLoginBtn.addEventListener('click', async () => {
+    materialsLoginMsg.textContent = '구글 로그인 창을 여는 중... (팝업을 허용해주세요)';
+    materialsLoginMsg.className = 'form-msg';
+    try{
+      const token = await ensureDriveAuth(true);
+      const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const info = await res.json();
+      const email = (info.email || '').toLowerCase();
+      if(ADMIN_EMAILS.map(e => e.toLowerCase()).includes(email)){
+        setAdminState(true);
+        closeLogin();
+      } else {
+        driveAccessToken = null;
+        materialsLoginMsg.textContent = `관리자로 등록된 계정이 아닙니다. (${email})`;
+        materialsLoginMsg.className = 'form-msg error';
+      }
+    } catch(err){
+      materialsLoginMsg.textContent = err.message || '로그인에 실패했습니다.';
+      materialsLoginMsg.className = 'form-msg error';
+    }
+  });
+
+  function buildMultipartBody(metadata, file, boundary){
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const contentType = file.type || 'application/pdf';
+        const encoder = new TextEncoder();
+        const metaPart = encoder.encode(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`);
+        const fileHeader = encoder.encode(`--${boundary}\r\nContent-Type: ${contentType}\r\n\r\n`);
+        const closing = encoder.encode(`\r\n--${boundary}--`);
+        const fileBytes = new Uint8Array(reader.result);
+        resolve(new Blob([metaPart, fileHeader, fileBytes, closing], { type: `multipart/related; boundary=${boundary}` }));
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function uploadToDrive(file, token, folderId, onProgress){
+    return new Promise(async (resolve, reject) => {
+      const boundary = '-------314159265358979323846';
+      const metadata = { name: file.name, parents: [folderId], mimeType: 'application/pdf' };
+      const body = await buildMultipartBody(metadata, file, boundary);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name');
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      xhr.setRequestHeader('Content-Type', `multipart/related; boundary=${boundary}`);
+      xhr.upload.onprogress = (e) => { if(e.lengthComputable && onProgress) onProgress(e.loaded / e.total); };
+      xhr.onload = () => {
+        if(xhr.status >= 200 && xhr.status < 300){ resolve(JSON.parse(xhr.responseText)); }
+        else reject(new Error('Drive 업로드 실패: ' + xhr.status));
+      };
+      xhr.onerror = () => reject(new Error('Drive 업로드 중 네트워크 오류'));
+      xhr.send(body);
+    });
+  }
+
+  function deleteFromDrive(fileId, token){
+    return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + token }
+    });
+  }
 
   /* ---- 업로드 ---- */
   const materialsFileInput = document.getElementById('materialsFileInput');
@@ -1386,19 +1453,6 @@ const firebaseConfig = {
     materialsTitleInput.value = f.name.replace(/\.pdf$/i, '');
   });
 
-  async function makeThumbnail(file){
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 1.4 });
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const ctx = canvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
-  }
-
   materialsUploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if(!isAdmin){
@@ -1412,34 +1466,18 @@ const firebaseConfig = {
     if(!title){ materialsUploadMsg.textContent='자료 제목을 입력해주세요.'; materialsUploadMsg.className='form-msg error'; return; }
 
     materialsUploadSubmitBtn.disabled = true;
-    materialsUploadMsg.textContent = '썸네일 생성 중...';
-    materialsUploadMsg.className = 'form-msg';
     materialsProgress.style.display = 'block';
-    materialsProgressBar.style.width = '10%';
+    materialsProgressBar.style.width = '5%';
 
     try{
-      const thumbBlob = await makeThumbnail(file);
-      materialsProgressBar.style.width = '35%';
-
-      const stamp = Date.now();
-      const safeBase = title.replace(/[^\w\uac00-\ud7a3\- ]/g, '').trim() || 'material';
-      const pdfRef = ref(storage, `materials/${stamp}_${safeBase}.pdf`);
-      const thumbRef = ref(storage, `materials/thumbnails/${stamp}_${safeBase}.jpg`);
-
       materialsUploadMsg.textContent = 'PDF 업로드 중...';
-      await uploadBytes(pdfRef, file, { contentType: 'application/pdf' });
-      materialsProgressBar.style.width = '70%';
+      materialsUploadMsg.className = 'form-msg';
+      const token = await ensureDriveAuth();
+      // 파일명은 "제목.pdf"로 저장해서 목록에 표시되는 제목과 일치시킵니다.
+      const fileToUpload = new File([file], title.replace(/[\\/]/g, '') + '.pdf', { type: 'application/pdf' });
 
-      materialsUploadMsg.textContent = '썸네일 업로드 중...';
-      await uploadBytes(thumbRef, thumbBlob, { contentType: 'image/jpeg' });
-      materialsProgressBar.style.width = '85%';
-
-      const [pdfURL, thumbURL] = await Promise.all([getDownloadURL(pdfRef), getDownloadURL(thumbRef)]);
-
-      await addDoc(collection(db, 'materials'), {
-        title, pdfURL, thumbURL,
-        pdfPath: pdfRef.fullPath, thumbPath: thumbRef.fullPath,
-        uploadedAt: serverTimestamp()
+      await uploadToDrive(fileToUpload, token, DRIVE_FOLDER_ID, (pct) => {
+        materialsProgressBar.style.width = Math.max(10, Math.round(pct * 90)) + '%';
       });
 
       materialsProgressBar.style.width = '100%';
@@ -1447,9 +1485,10 @@ const firebaseConfig = {
       materialsUploadMsg.className = 'form-msg ok';
       materialsUploadForm.reset();
       materialsDropText.textContent = '클릭해서 PDF 선택 (파일명이 자료 제목이 됩니다)';
+      await refreshMaterials();
     } catch(err){
       console.error(err);
-      materialsUploadMsg.textContent = '업로드 중 오류가 발생했습니다.';
+      materialsUploadMsg.textContent = err.message || '업로드 중 오류가 발생했습니다.';
       materialsUploadMsg.className = 'form-msg error';
     } finally {
       materialsUploadSubmitBtn.disabled = false;
@@ -1475,11 +1514,11 @@ const firebaseConfig = {
         if(!item) return;
         if(!confirm(`"${item.title}" 자료를 삭제할까요?`)) return;
         try{
-          await deleteDoc(doc(db, 'materials', item.id));
-          if(item.pdfPath) await deleteObject(ref(storage, item.pdfPath)).catch(()=>{});
-          if(item.thumbPath) await deleteObject(ref(storage, item.thumbPath)).catch(()=>{});
+          const token = await ensureDriveAuth();
+          await deleteFromDrive(item.id, token);
+          await refreshMaterials();
         } catch(err){
-          alert('삭제 중 오류가 발생했습니다.');
+          alert('삭제 중 오류가 발생했습니다: ' + (err.message || ''));
         }
       });
     });
