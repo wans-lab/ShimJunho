@@ -2546,7 +2546,7 @@ body{
   function closeLogin(){ issuesLoginOverlay.classList.remove('open'); unlockScroll(); }
   issuesAdminBtn.addEventListener('click', openLogin);
   document.getElementById('issuesLoginCloseBtn').addEventListener('click', closeLogin);
-  issuesLoginOverlay.addEventListener('click', e => { if(e.target === issuesLoginOverlay) closeLogin(); });
+  // 바깥(어두운 배경) 클릭으로는 닫히지 않음 — 닫기(×) 버튼 또는 Esc로만 닫힘
 
   issuesLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
