@@ -1428,6 +1428,8 @@ body{
       return;
     }
 
+    const PRESS_CACHE_KEY = 'az_press_cache_v1';
+
     function escapeHtml(str){
       return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
     }
@@ -1436,30 +1438,63 @@ body{
       if(isNaN(d)) return iso;
       return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
     }
+    function renderItems(items){
+      listEl.innerHTML = items.map(item => `
+        <a class="press-row" href="${item.url}" target="_blank" rel="noopener">
+          <div class="press-row-main">
+            <div class="press-source">${escapeHtml(item.source || '')}</div>
+            <div class="press-title">${escapeHtml(item.title)}</div>
+          </div>
+          <div class="press-date">${formatDate(item.date)}</div>
+        </a>
+      `).join('');
+      emptyEl.style.display = 'none';
+    }
 
-    fetch(PRESS_FEED_URL)
-      .then(res => res.json())
+    // 이전에 성공적으로 불러온 목록이 있으면 우선 바로 보여줌 (크롤러가 느리거나 실패해도 화면이 비지 않도록)
+    try{
+      const cached = JSON.parse(localStorage.getItem(PRESS_CACHE_KEY) || 'null');
+      if(cached && cached.items && cached.items.length) renderItems(cached.items);
+    } catch(e){}
+
+    // 실제 최신 데이터는 재시도(최대 3회, 매번 타임아웃 12초)를 거쳐 불러옴 — Apps Script 크롤러가 가끔 느리거나 일시 오류가 나는 문제 대응
+    async function fetchWithRetry(url, attempts){
+      let lastErr;
+      for(let i = 0; i < attempts; i++){
+        try{
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
+          const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+          clearTimeout(timeoutId);
+          if(!res.ok) throw new Error('HTTP ' + res.status);
+          return await res.json();
+        } catch(err){
+          lastErr = err;
+          if(i < attempts - 1) await new Promise(r => setTimeout(r, 1200 * (i + 1)));
+        }
+      }
+      throw lastErr;
+    }
+
+    fetchWithRetry(PRESS_FEED_URL, 3)
       .then(data => {
         const items = (data && data.items) ? data.items.slice(0, 8) : [];
         if(!items.length){
-          emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
-          emptyEl.style.display = 'block';
+          if(!listEl.children.length){
+            emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
+            emptyEl.style.display = 'block';
+          }
           return;
         }
-        listEl.innerHTML = items.map(item => `
-          <a class="press-row" href="${item.url}" target="_blank" rel="noopener">
-            <div class="press-row-main">
-              <div class="press-source">${escapeHtml(item.source || '')}</div>
-              <div class="press-title">${escapeHtml(item.title)}</div>
-            </div>
-            <div class="press-date">${formatDate(item.date)}</div>
-          </a>
-        `).join('');
+        renderItems(items);
+        try{ localStorage.setItem(PRESS_CACHE_KEY, JSON.stringify({ items, savedAt: Date.now() })); } catch(e){}
       })
       .catch(err => {
         console.error('보도자료 목록 연동 실패', err);
-        emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
-        emptyEl.style.display = 'block';
+        if(!listEl.children.length){
+          emptyEl.textContent = '지금은 보도자료를 불러올 수 없습니다.';
+          emptyEl.style.display = 'block';
+        }
       });
   })();
 
