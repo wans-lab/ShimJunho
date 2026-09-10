@@ -28,7 +28,7 @@
     --font-accent:'Cormorant Garamond', serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth; scroll-padding-top:76px;}
+  html{scroll-behavior:smooth; scroll-padding-top:76px; scroll-snap-type:y proximity;}
 
 html, body{
   max-width: 100vw;
@@ -149,6 +149,7 @@ body{
   .hero{
     min-height:100vh; min-height:100svh; display:flex; align-items:center;
     padding:110px 0 90px; position:relative; overflow:hidden; background:var(--blue); color:#fff;
+    scroll-snap-align:start;
   }
   .hero::before{
     content:""; position:absolute; top:-200px; right:-160px; width:640px; height:640px; border-radius:50%;
@@ -265,7 +266,9 @@ body{
   }
 
   /* -------- Band shared -------- */
-  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; }
+  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start; }
+  /* 글이 계속 쌓이는 섹션은 한 화면 강제 고정을 풀고 콘텐츠 양에 맞게 자연스럽게 늘어나도록 원복 (스크롤 스냅 대상에서도 제외) */
+  #issues, #knowledge, #press{ min-height:auto; display:block; scroll-snap-align:none; }
   .band-alt{ background:var(--bg-alt); }
   .band-head{ text-align:center; max-width:640px; margin:0 auto 56px; }
   .band-head h2{ font-size:clamp(28px,3.6vw,42px); line-height:1.28; }
@@ -413,7 +416,7 @@ body{
   background:var(--bg-alt); 
   overflow:hidden; /* <-- 이 구문을 반드시 추가해 주세요! */
   width:100%;       /* <-- 안전하게 너비를 100%로 고정합니다. */
-  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative;
+  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start;
 }
   .marquee-head{ text-align:center; padding:80px 0 46px; }
   .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; padding-bottom:80px; }
@@ -423,7 +426,7 @@ body{
   @media (max-width:640px){ .marquee-track img{ width:240px; height:180px; } }
 
   /* -------- CTA -------- */
-  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; }
+  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start; }
   .cta h2{ font-size:clamp(28px,4vw,46px); margin-bottom:20px; }
   .cta p{ color:var(--muted); font-size:15px; margin-bottom:38px; }
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
@@ -1115,9 +1118,6 @@ body{
     <p class="issues-empty" id="issuesEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
     <button type="button" class="issues-loadmore" id="issuesLoadMoreBtn">더 보기</button>
   </div>
-  <a href="#knowledge" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-  </a>
 </section>
 
 <!-- KNOWLEDGE (보험 기초 상식) — 이달의 상품 이슈와 동일한 방식(Firebase), 별도 컬렉션 사용 -->
@@ -1142,9 +1142,6 @@ body{
     <p class="issues-empty" id="knowEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
     <button type="button" class="issues-loadmore" id="knowLoadMoreBtn">더 보기</button>
   </div>
-  <a href="#press" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-  </a>
 </section>
 
 <!-- 이슈 상세 보기 -->
@@ -1450,9 +1447,6 @@ body{
     <p class="press-empty" id="pressEmpty" style="display:none;">지금은 보도자료를 불러올 수 없습니다.</p>
     <p class="press-more"><a href="https://www.azfinancial.co.kr/media" target="_blank" rel="noopener">AZ금융서비스 미디어룸에서 더 보기 →</a></p>
   </div>
-  <a href="#reference" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-  </a>
 </section>
 
 <!-- REFERENCE LINKS (유용한 외부 사이트 바로가기) -->
