@@ -265,7 +265,7 @@ body{
   }
 
   /* -------- Band shared -------- */
-  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; align-content:center; position:relative; }
+  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; }
   .band-alt{ background:var(--bg-alt); }
   .band-head{ text-align:center; max-width:640px; margin:0 auto 56px; }
   .band-head h2{ font-size:clamp(28px,3.6vw,42px); line-height:1.28; }
@@ -341,7 +341,7 @@ body{
   .claim-slider::-webkit-scrollbar{ display:none; }
   .claim-slider.dragging{ cursor:grabbing; scroll-snap-type:none; }
   .claim-slider img{
-    height:440px; width:auto; max-width:none; flex:0 0 auto;
+    height:clamp(200px, 40vh, 440px); width:auto; max-width:none; flex:0 0 auto;
     border-radius:14px; border:1px solid var(--line);
     box-shadow:0 16px 34px -18px rgba(16,21,43,0.28);
     background:#fff; scroll-snap-align:start;
@@ -413,7 +413,7 @@ body{
   background:var(--bg-alt); 
   overflow:hidden; /* <-- 이 구문을 반드시 추가해 주세요! */
   width:100%;       /* <-- 안전하게 너비를 100%로 고정합니다. */
-  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; align-content:center; position:relative;
+  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative;
 }
   .marquee-head{ text-align:center; padding:80px 0 46px; }
   .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; padding-bottom:80px; }
@@ -423,7 +423,7 @@ body{
   @media (max-width:640px){ .marquee-track img{ width:240px; height:180px; } }
 
   /* -------- CTA -------- */
-  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; align-content:center; position:relative; }
+  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; }
   .cta h2{ font-size:clamp(28px,4vw,46px); margin-bottom:20px; }
   .cta p{ color:var(--muted); font-size:15px; margin-bottom:38px; }
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
@@ -1003,7 +1003,7 @@ body{
       <div class="claim-slider" id="claimSlider">
 
         <img src="https://lh3.googleusercontent.com/d/1n8Z840ohGosMWWiSV0ecV_EY_mEX2cHi" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1dBoZpdABcR_-aRLgWGihAKNXmKf_ZtnL" loading="lazy" alt="청구사례" draggable="false"
+        <img src="https://lh3.googleusercontent.com/d/1dBoZpdABcR_-aRLgWGihAKNXmKf_ZtnL" loading="lazy" alt="청구사례" draggable="false">
         <img src="https://lh3.googleusercontent.com/d/102NnJO8RV2uYh9Olw9G33NBJTT2x_eko" loading="lazy" alt="청구사례" draggable="false">
         <img src="https://lh3.googleusercontent.com/d/1XkNaU5CV_HBDB13n3xambO2YTXlh6zGT" loading="lazy" alt="청구사례" draggable="false">
         <img src="https://lh3.googleusercontent.com/d/1HBr9tsDsrqbQe4ZqudIz6HPg0zSwa4pi" loading="lazy" alt="청구사례" draggable="false">
