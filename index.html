@@ -523,6 +523,82 @@ body{
   .materials-more-modal .privacy-modal-body{ max-height:74vh; overflow-y:auto; }
   .materials-more-modal .materials-grid{ margin-top:0; }
 
+  /* -------- Issues (이달의 상품 이슈, 블로그) -------- */
+  .issues-toolbar{ display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-bottom:26px; flex-wrap:wrap; }
+  .issues-count{ font-size:13px; color:var(--muted); font-weight:600; margin-right:auto; }
+  .issues-adminbar{ display:none; align-items:center; gap:10px; }
+  .issues-adminbar.on{ display:flex; }
+  .issues-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:24px; }
+  .issue-card{
+    cursor:pointer; border-radius:14px; overflow:hidden; border:1px solid var(--line);
+    background:#fff; transition:transform .2s ease, box-shadow .2s ease; position:relative;
+  }
+  .issue-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px -18px rgba(16,21,43,0.28); }
+  .issue-thumb{ aspect-ratio:16/10; background:var(--bg-panel); overflow:hidden; }
+  .issue-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .issue-thumb .thumb-fallback{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    font-size:13px; color:var(--muted-dim); font-weight:700; background:var(--bg-panel);
+  }
+  .issue-info{ padding:16px 18px 18px; }
+  .issue-title{
+    font-weight:800; font-size:15.5px; color:var(--ink); margin-bottom:6px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;
+  }
+  .issue-excerpt{
+    font-size:12.8px; color:var(--muted); line-height:1.6; margin-bottom:10px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .issue-date{ font-size:11.5px; color:var(--muted-dim); font-weight:600; }
+  .issue-del-btn{
+    position:absolute; top:10px; right:10px; z-index:2; border:none; background:rgba(16,21,43,0.78);
+    color:#fff; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer;
+  }
+  .issue-del-btn:hover{ background:#d3423e; }
+  .issues-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; }
+  .issues-loadmore{
+    display:none; margin:28px auto 0; padding:11px 28px; border-radius:999px;
+    border:1px solid var(--line); background:#fff; color:var(--ink); font-size:13.5px; font-weight:700; cursor:pointer;
+  }
+  .issues-loadmore:hover{ border-color:var(--blue); color:var(--blue); }
+
+  /* 상세 보기 모달 */
+  .issue-detail-modal{ max-width:760px; }
+  .issue-detail-body{ padding:0 26px 30px; overflow-y:auto; max-height:78vh; }
+  .issue-detail-cover{ width:100%; border-radius:12px; margin-bottom:18px; max-height:360px; object-fit:cover; }
+  .issue-detail-date{ font-size:12px; color:var(--muted); font-weight:600; margin-bottom:16px; }
+  .issue-detail-content{ font-size:14.5px; line-height:1.9; color:var(--ink); word-break:keep-all; }
+  .issue-detail-content img{ max-width:100%; border-radius:10px; margin:14px 0; }
+  .issue-detail-content p{ margin-bottom:12px; }
+  .issue-detail-pdf{
+    display:inline-flex; align-items:center; gap:8px; margin-top:20px; padding:11px 18px;
+    border:1px solid var(--line); border-radius:10px; font-size:13px; font-weight:700; color:var(--ink);
+  }
+  .issue-detail-pdf:hover{ border-color:var(--blue); color:var(--blue); }
+
+  /* 글쓰기 에디터 */
+  .issue-write-modal{ max-width:680px; }
+  .issue-editor-toolbar{ display:flex; gap:8px; margin-bottom:8px; }
+  .issue-editor-toolbar button{
+    border:1px solid var(--line); background:#fff; border-radius:8px; padding:7px 12px;
+    font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
+  }
+  .issue-editor-toolbar button:hover{ border-color:var(--blue); color:var(--blue); }
+  .issue-editor-body{
+    min-height:220px; max-height:360px; overflow-y:auto; border:1px solid var(--line); border-radius:10px;
+    padding:14px; font-size:13.5px; line-height:1.8; background:var(--bg-alt); color:var(--ink);
+  }
+  .issue-editor-body:focus{ outline:none; border-color:var(--blue); background:#fff; }
+  .issue-editor-body img{ max-width:100%; border-radius:8px; margin:8px 0; display:block; }
+  .issue-editor-body:empty:before{ content:attr(data-placeholder); color:var(--muted-dim); }
+
+  @media (max-width:640px){
+    .issues-toolbar{ justify-content:center; margin-bottom:18px; }
+    .issues-count{ width:100%; margin-right:0; text-align:center; }
+    .issues-grid{ grid-template-columns:1fr; gap:16px; }
+    .issue-detail-body{ padding:0 18px 24px; }
+  }
+
   /* -------- Press (AZ금융서비스 보도자료) -------- */
   .press-list{ border-top:1px solid var(--line); }
   .press-row{
@@ -625,6 +701,7 @@ body{
       <a href="#service">서비스</a>
       <a href="#partner">파트너</a>
       <!-- <a href="#materials">보험사 소식지</a> -->
+      <a href="#issues">이달의 상품 이슈</a>
       <a href="#contact">상담문의</a>
     </nav>
     <div class="nav-cta">
@@ -647,6 +724,7 @@ body{
     <a href="#service">서비스</a>
     <a href="#partner">파트너</a>
     <!-- <a href="#materials">보험사 소식지</a> -->
+    <a href="#issues">이달의 상품 이슈</a>
     <a href="#contact">상담문의</a>
   </nav>
   <div class="mobile-menu-actions">
@@ -837,6 +915,115 @@ body{
     </div>
   </div>
 </section>
+
+<!-- ISSUES (이달의 상품 이슈) -->
+<section class="band band-alt" id="issues">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">Blog</span>
+      <h2>이달의 상품 이슈</h2>
+      <p>이달의 주요 보험 상품 소식과 알아두면 좋은 이야기를 전해드립니다.</p>
+    </div>
+
+    <div class="issues-toolbar reveal">
+      <span class="issues-count" id="issuesCount"></span>
+      <div class="issues-adminbar" id="issuesAdminBar">
+        <button type="button" class="btn btn-blue btn-sm" id="issuesWriteBtn">글쓰기</button>
+        <button type="button" class="btn btn-outline btn-sm" id="issuesLogoutBtn">로그아웃</button>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="issuesAdminBtn">관리자</button>
+    </div>
+
+    <div class="issues-grid reveal-group" id="issuesGrid"></div>
+    <p class="issues-empty" id="issuesEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
+    <button type="button" class="issues-loadmore" id="issuesLoadMoreBtn">더 보기</button>
+  </div>
+</section>
+
+<!-- 이슈 상세 보기 -->
+<div class="privacy-overlay" id="issueDetailOverlay">
+  <div class="privacy-modal issue-detail-modal" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3 id="issueDetailTitle">제목</h3>
+      <button type="button" class="privacy-modal-close" id="issueDetailCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="issue-detail-body">
+      <img id="issueDetailCover" class="issue-detail-cover" style="display:none;" alt="">
+      <p class="issue-detail-date" id="issueDetailDate"></p>
+      <div class="issue-detail-content" id="issueDetailContent"></div>
+      <a href="#" id="issueDetailPdf" class="issue-detail-pdf" style="display:none;" target="_blank" rel="noopener">📎 첨부 PDF 보기</a>
+    </div>
+  </div>
+</div>
+
+<!-- 이슈 관리자 로그인 -->
+<div class="privacy-overlay" id="issuesLoginOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>관리자 로그인</h3>
+      <button type="button" class="privacy-modal-close" id="issuesLoginCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="issuesLoginForm">
+        <div class="form-row">
+          <label for="issuesLoginEmail">이메일</label>
+          <input type="email" id="issuesLoginEmail" required autocomplete="username">
+        </div>
+        <div class="form-row">
+          <label for="issuesLoginPassword">비밀번호</label>
+          <input type="password" id="issuesLoginPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-blue" style="width:100%;">로그인</button>
+      </form>
+      <p class="form-msg" id="issuesLoginMsg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 이슈 글쓰기 -->
+<div class="privacy-overlay" id="issuesWriteOverlay">
+  <div class="privacy-modal issue-write-modal" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>이달의 상품 이슈 작성</h3>
+      <button type="button" class="privacy-modal-close" id="issuesWriteCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="issuesWriteForm">
+        <div class="form-row">
+          <label for="issueTitleInput">제목</label>
+          <input type="text" id="issueTitleInput" required>
+        </div>
+        <div class="form-row">
+          <label for="issueCoverInput">대표 이미지 (선택 — 비워두면 본문 첫 이미지로 자동 지정)</label>
+          <label class="form-drop" id="issueCoverDropLabel" for="issueCoverInput">
+            <span id="issueCoverDropText">클릭해서 대표 이미지 선택</span>
+            <input type="file" id="issueCoverInput" accept="image/*">
+          </label>
+        </div>
+        <div class="form-row">
+          <label for="issueBodyEditor">본문</label>
+          <div class="issue-editor-toolbar">
+            <button type="button" id="issueBoldBtn"><b>B</b></button>
+            <button type="button" id="issueItalicBtn"><i>I</i></button>
+            <button type="button" id="issueImageBtn">🖼 이미지 삽입</button>
+            <input type="file" id="issueInlineImageInput" accept="image/*" style="display:none;">
+          </div>
+          <div class="issue-editor-body" id="issueBodyEditor" contenteditable="true" data-placeholder="글 내용을 입력하세요. 이미지는 위 '이미지 삽입' 버튼으로 원하는 위치에 넣을 수 있어요."></div>
+        </div>
+        <div class="form-row">
+          <label for="issuePdfInput">PDF 첨부 (선택)</label>
+          <label class="form-drop" id="issuePdfDropLabel" for="issuePdfInput">
+            <span id="issuePdfDropText">클릭해서 PDF 선택</span>
+            <input type="file" id="issuePdfInput" accept="application/pdf">
+          </label>
+        </div>
+        <div class="form-progress" id="issueUploadProgress"><div class="bar" id="issueUploadProgressBar"></div></div>
+        <button type="submit" class="btn btn-blue" style="width:100%; margin-top:6px;" id="issueSubmitBtn">게시하기</button>
+      </form>
+      <p class="form-msg" id="issuesWriteMsg"></p>
+    </div>
+  </div>
+</div>
 
 <!-- MATERIALS
 <section class="band" id="materials">
@@ -2054,6 +2241,374 @@ body{
       });
     });
   }
+</script>
+
+<!-- 이달의 상품 이슈: Firebase(Firestore + Storage + Auth) 사용 -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA_xLaF-zfI-aIidRxcJuflNzYEU9zFdtU",
+    authDomain: "simjunho-insurance.firebaseapp.com",
+    projectId: "simjunho-insurance",
+    storageBucket: "simjunho-insurance.firebasestorage.app",
+    messagingSenderId: "579184940244",
+    appId: "1:579184940244:web:f7585fc0daeb9741b41741"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app, "shimfinancial-blog"); // ⚠️ 기본이 아닌 이름 있는 데이터베이스
+  const storage = getStorage(app);
+  const auth = getAuth(app);
+
+  const PAGE_SIZE = 6;
+  let allPosts = [];
+  let shownCount = 0;
+  let isAdmin = false;
+  let draftId = null;
+  let draftInsertedImagePaths = [];
+  let draftCoverFile = null;
+  let draftPdfFile = null;
+
+  const issuesGrid = document.getElementById('issuesGrid');
+  const issuesEmpty = document.getElementById('issuesEmpty');
+  const issuesCount = document.getElementById('issuesCount');
+  const issuesLoadMoreBtn = document.getElementById('issuesLoadMoreBtn');
+  const issuesAdminBar = document.getElementById('issuesAdminBar');
+  const issuesAdminBtn = document.getElementById('issuesAdminBtn');
+  const issuesWriteBtn = document.getElementById('issuesWriteBtn');
+  const issuesLogoutBtn = document.getElementById('issuesLogoutBtn');
+
+  const issuesLoginOverlay = document.getElementById('issuesLoginOverlay');
+  const issuesLoginForm = document.getElementById('issuesLoginForm');
+  const issuesLoginMsg = document.getElementById('issuesLoginMsg');
+
+  const issuesWriteOverlay = document.getElementById('issuesWriteOverlay');
+  const issuesWriteForm = document.getElementById('issuesWriteForm');
+  const issuesWriteMsg = document.getElementById('issuesWriteMsg');
+  const issueTitleInput = document.getElementById('issueTitleInput');
+  const issueBodyEditor = document.getElementById('issueBodyEditor');
+  const issueCoverInput = document.getElementById('issueCoverInput');
+  const issueCoverDropText = document.getElementById('issueCoverDropText');
+  const issuePdfInput = document.getElementById('issuePdfInput');
+  const issuePdfDropText = document.getElementById('issuePdfDropText');
+  const issueInlineImageInput = document.getElementById('issueInlineImageInput');
+  const issueUploadProgress = document.getElementById('issueUploadProgress');
+  const issueUploadProgressBar = document.getElementById('issueUploadProgressBar');
+  const issueSubmitBtn = document.getElementById('issueSubmitBtn');
+
+  const issueDetailOverlay = document.getElementById('issueDetailOverlay');
+  const issueDetailTitle = document.getElementById('issueDetailTitle');
+  const issueDetailCover = document.getElementById('issueDetailCover');
+  const issueDetailDate = document.getElementById('issueDetailDate');
+  const issueDetailContent = document.getElementById('issueDetailContent');
+  const issueDetailPdf = document.getElementById('issueDetailPdf');
+
+  function fmtDate(ts){
+    if(!ts || !ts.toDate) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function excerptOf(html){
+    return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
+  }
+  function firstImageOf(html){
+    const m = (html || '').match(/<img[^>]+src="([^"]+)"/i);
+    return m ? m[1] : null;
+  }
+
+  async function refreshIssues(){
+    issuesGrid.innerHTML = '';
+    try{
+      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(err){
+      console.error(err);
+      allPosts = [];
+    }
+    shownCount = 0;
+    renderMore();
+  }
+
+  function renderMore(){
+    const next = allPosts.slice(shownCount, shownCount + PAGE_SIZE);
+    next.forEach(post => issuesGrid.appendChild(renderCard(post)));
+    shownCount += next.length;
+
+    issuesEmpty.style.display = allPosts.length === 0 ? 'block' : 'none';
+    issuesCount.textContent = allPosts.length ? `전체 ${allPosts.length}건` : '';
+    issuesLoadMoreBtn.style.display = shownCount < allPosts.length ? 'block' : 'none';
+  }
+
+  function renderCard(post){
+    const card = document.createElement('div');
+    card.className = 'issue-card reveal';
+    const cover = post.coverURL || firstImageOf(post.bodyHTML);
+    card.innerHTML = `
+      <div class="issue-thumb">
+        ${cover ? `<img src="${cover}" alt="">` : `<div class="thumb-fallback">이달의 상품 이슈</div>`}
+      </div>
+      <div class="issue-info">
+        <div class="issue-title">${escapeHtml(post.title || '')}</div>
+        <div class="issue-excerpt">${escapeHtml(excerptOf(post.bodyHTML))}</div>
+        <div class="issue-date">${fmtDate(post.createdAt)}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => openDetail(post));
+    if(isAdmin){
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'issue-del-btn';
+      delBtn.textContent = '삭제';
+      delBtn.addEventListener('click', (e) => { e.stopPropagation(); deletePost(post); });
+      card.appendChild(delBtn);
+    }
+    card.classList.add('in-view');
+    return card;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function openDetail(post){
+    issueDetailTitle.textContent = post.title || '';
+    issueDetailDate.textContent = fmtDate(post.createdAt);
+    issueDetailContent.innerHTML = post.bodyHTML || '';
+    if(post.coverURL){
+      issueDetailCover.src = post.coverURL;
+      issueDetailCover.style.display = 'block';
+    } else {
+      issueDetailCover.style.display = 'none';
+    }
+    if(post.pdfURL){
+      issueDetailPdf.href = post.pdfURL;
+      issueDetailPdf.style.display = 'inline-flex';
+      issueDetailPdf.textContent = `📎 ${post.pdfName || '첨부 PDF 보기'}`;
+    } else {
+      issueDetailPdf.style.display = 'none';
+    }
+    issueDetailOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDetail(){
+    issueDetailOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('issueDetailCloseBtn').addEventListener('click', closeDetail);
+  issueDetailOverlay.addEventListener('click', e => { if(e.target === issueDetailOverlay) closeDetail(); });
+
+  /* ---- 관리자 로그인 ---- */
+  function openLogin(){
+    issuesLoginMsg.textContent = ''; issuesLoginMsg.className = 'form-msg';
+    issuesLoginOverlay.classList.add('open'); document.body.style.overflow = 'hidden';
+  }
+  function closeLogin(){ issuesLoginOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  issuesAdminBtn.addEventListener('click', openLogin);
+  document.getElementById('issuesLoginCloseBtn').addEventListener('click', closeLogin);
+  issuesLoginOverlay.addEventListener('click', e => { if(e.target === issuesLoginOverlay) closeLogin(); });
+
+  issuesLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('issuesLoginEmail').value.trim();
+    const pw = document.getElementById('issuesLoginPassword').value;
+    issuesLoginMsg.textContent = '로그인 중...'; issuesLoginMsg.className = 'form-msg';
+    try{
+      await signInWithEmailAndPassword(auth, email, pw);
+      issuesLoginForm.reset();
+      closeLogin();
+    } catch(err){
+      issuesLoginMsg.textContent = '로그인에 실패했습니다. 이메일/비밀번호를 확인해주세요.';
+      issuesLoginMsg.className = 'form-msg error';
+    }
+  });
+
+  issuesLogoutBtn.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    isAdmin = !!user;
+    issuesAdminBar.classList.toggle('on', isAdmin);
+    issuesAdminBtn.style.display = isAdmin ? 'none' : 'inline-flex';
+    refreshIssues();
+  });
+
+  /* ---- 글쓰기 ---- */
+  function openWrite(){
+    issuesWriteForm.reset();
+    issueBodyEditor.innerHTML = '';
+    issueCoverDropText.textContent = '클릭해서 대표 이미지 선택';
+    issuePdfDropText.textContent = '클릭해서 PDF 선택';
+    issuesWriteMsg.textContent = ''; issuesWriteMsg.className = 'form-msg';
+    issueUploadProgress.style.display = 'none';
+    issueUploadProgressBar.style.width = '0%';
+    draftId = doc(collection(db, 'posts')).id;
+    draftInsertedImagePaths = [];
+    draftCoverFile = null;
+    draftPdfFile = null;
+    issuesWriteOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeWrite(){ issuesWriteOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  issuesWriteBtn.addEventListener('click', openWrite);
+  document.getElementById('issuesWriteCloseBtn').addEventListener('click', closeWrite);
+  issuesWriteOverlay.addEventListener('click', e => { if(e.target === issuesWriteOverlay) closeWrite(); });
+
+  document.getElementById('issueBoldBtn').addEventListener('click', () => { issueBodyEditor.focus(); document.execCommand('bold'); });
+  document.getElementById('issueItalicBtn').addEventListener('click', () => { issueBodyEditor.focus(); document.execCommand('italic'); });
+
+  let savedRange = null;
+  issueBodyEditor.addEventListener('mouseup', saveSelection);
+  issueBodyEditor.addEventListener('keyup', saveSelection);
+  function saveSelection(){
+    const sel = window.getSelection();
+    if(sel.rangeCount) savedRange = sel.getRangeAt(0);
+  }
+  function restoreSelection(){
+    issueBodyEditor.focus();
+    if(savedRange){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+  }
+
+  function extOf(file){
+    const parts = file.name.split('.');
+    return parts.length > 1 ? parts.pop() : 'dat';
+  }
+
+  function uploadWithProgress(path, file){
+    return new Promise((resolve, reject) => {
+      const sref = ref(storage, path);
+      const task = uploadBytesResumable(sref, file);
+      issueUploadProgress.style.display = 'block';
+      task.on('state_changed', (snap) => {
+        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        issueUploadProgressBar.style.width = pct + '%';
+      }, reject, async () => {
+        const url = await getDownloadURL(task.snapshot.ref);
+        resolve({ url, path });
+      });
+    });
+  }
+
+  document.getElementById('issueImageBtn').addEventListener('click', () => {
+    saveSelection();
+    issueInlineImageInput.click();
+  });
+  issueInlineImageInput.addEventListener('change', async () => {
+    const file = issueInlineImageInput.files[0];
+    if(!file) return;
+    try{
+      const path = `issues/${draftId}/body-${Date.now()}.${extOf(file)}`;
+      const { url } = await uploadWithProgress(path, file);
+      draftInsertedImagePaths.push(path);
+      restoreSelection();
+      document.execCommand('insertHTML', false, `<img src="${url}" alt=""><br>`);
+    } catch(err){
+      alert('이미지 업로드 중 오류가 발생했습니다: ' + (err.message || ''));
+    } finally {
+      issueInlineImageInput.value = '';
+      issueUploadProgress.style.display = 'none';
+      issueUploadProgressBar.style.width = '0%';
+    }
+  });
+
+  issueCoverInput.addEventListener('change', () => {
+    draftCoverFile = issueCoverInput.files[0] || null;
+    issueCoverDropText.textContent = draftCoverFile ? draftCoverFile.name : '클릭해서 대표 이미지 선택';
+  });
+  issuePdfInput.addEventListener('change', () => {
+    draftPdfFile = issuePdfInput.files[0] || null;
+    issuePdfDropText.textContent = draftPdfFile ? draftPdfFile.name : '클릭해서 PDF 선택';
+  });
+
+  issuesWriteForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = issueTitleInput.value.trim();
+    let bodyHTML = issueBodyEditor.innerHTML.trim();
+    bodyHTML = bodyHTML.replace(/<script[\s\S]*?<\/script>/gi, '');
+    if(!title){ issuesWriteMsg.textContent = '제목을 입력해주세요.'; issuesWriteMsg.className = 'form-msg error'; return; }
+    if(!issueBodyEditor.textContent.trim() && !/<img/i.test(bodyHTML)){
+      issuesWriteMsg.textContent = '본문을 입력해주세요.'; issuesWriteMsg.className = 'form-msg error'; return;
+    }
+
+    issueSubmitBtn.disabled = true;
+    issuesWriteMsg.textContent = '게시 중입니다...'; issuesWriteMsg.className = 'form-msg';
+
+    try{
+      let coverURL = null, coverPath = null;
+      if(draftCoverFile){
+        coverPath = `issues/${draftId}/cover-${Date.now()}.${extOf(draftCoverFile)}`;
+        const res = await uploadWithProgress(coverPath, draftCoverFile);
+        coverURL = res.url;
+      } else {
+        coverURL = firstImageOf(bodyHTML);
+      }
+
+      let pdfURL = null, pdfPath = null, pdfName = null;
+      if(draftPdfFile){
+        pdfPath = `issues/${draftId}/attachment-${Date.now()}.pdf`;
+        const res = await uploadWithProgress(pdfPath, draftPdfFile);
+        pdfURL = res.url;
+        pdfName = draftPdfFile.name;
+      }
+
+      await setDoc(doc(db, 'posts', draftId), {
+        title, bodyHTML, coverURL, coverPath, pdfURL, pdfPath, pdfName,
+        bodyImagePaths: draftInsertedImagePaths,
+        createdAt: serverTimestamp(),
+        authorEmail: auth.currentUser ? auth.currentUser.email : null
+      });
+
+      closeWrite();
+      await refreshIssues();
+    } catch(err){
+      issuesWriteMsg.textContent = '게시 중 오류가 발생했습니다: ' + (err.message || '');
+      issuesWriteMsg.className = 'form-msg error';
+    } finally {
+      issueSubmitBtn.disabled = false;
+      issueUploadProgress.style.display = 'none';
+      issueUploadProgressBar.style.width = '0%';
+    }
+  });
+
+  async function deletePost(post){
+    if(!confirm(`"${post.title}" 글을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    try{
+      const paths = [...(post.bodyImagePaths || [])];
+      if(post.coverPath) paths.push(post.coverPath);
+      if(post.pdfPath) paths.push(post.pdfPath);
+      await Promise.allSettled(paths.map(p => deleteObject(ref(storage, p))));
+      await deleteDoc(doc(db, 'posts', post.id));
+      await refreshIssues();
+    } catch(err){
+      alert('삭제 중 오류가 발생했습니다: ' + (err.message || ''));
+    }
+  }
+
+  issuesLoadMoreBtn.addEventListener('click', renderMore);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(issueDetailOverlay.classList.contains('open')) closeDetail();
+    if(issuesLoginOverlay.classList.contains('open')) closeLogin();
+    if(issuesWriteOverlay.classList.contains('open')) closeWrite();
+  });
+
+  refreshIssues();
 </script>
 </body>
 </html>
