@@ -584,6 +584,19 @@ body{
     font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
   }
   .issue-editor-toolbar button:hover{ border-color:var(--blue); color:var(--blue); }
+  .issue-editor-toolbar select{
+    border:1px solid var(--line); background:#fff; border-radius:8px; padding:6px 8px;
+    font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; font-family:inherit;
+  }
+  .issue-editor-toolbar select:hover{ border-color:var(--blue); }
+  .issue-editor-toolbar input[type="color"]{
+    width:34px; height:32px; border:1px solid var(--line); border-radius:8px; padding:2px; cursor:pointer; background:#fff;
+  }
+  .issue-edit-btn{
+    position:absolute; top:10px; right:70px; z-index:2; border:none; background:rgba(16,21,43,0.78);
+    color:#fff; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer;
+  }
+  .issue-edit-btn:hover{ background:var(--blue); }
   .issue-editor-body{
     min-height:220px; max-height:360px; overflow-y:auto; border:1px solid var(--line); border-radius:10px;
     padding:14px; font-size:13.5px; line-height:1.8; background:var(--bg-alt); color:var(--ink);
@@ -984,7 +997,7 @@ body{
 <div class="privacy-overlay" id="issuesWriteOverlay">
   <div class="privacy-modal issue-write-modal" role="dialog" aria-modal="true">
     <div class="privacy-modal-header">
-      <h3>이달의 상품 이슈 작성</h3>
+      <h3 id="issueWriteModalTitle">이달의 상품 이슈 작성</h3>
       <button type="button" class="privacy-modal-close" id="issuesWriteCloseBtn" aria-label="닫기">×</button>
     </div>
     <div class="privacy-modal-body">
@@ -1005,6 +1018,19 @@ body{
           <div class="issue-editor-toolbar">
             <button type="button" id="issueBoldBtn"><b>B</b></button>
             <button type="button" id="issueItalicBtn"><i>I</i></button>
+            <select id="issueFontSelect" title="글꼴">
+              <option value="'Pretendard', sans-serif" selected>기본 고딕</option>
+              <option value="Georgia, serif">명조(세리프)</option>
+              <option value="'Courier New', monospace">타자체</option>
+              <option value="Arial, sans-serif">Arial</option>
+            </select>
+            <select id="issueSizeSelect" title="글자 크기">
+              <option value="2">작게</option>
+              <option value="3" selected>보통</option>
+              <option value="5">크게</option>
+              <option value="7">아주 크게</option>
+            </select>
+            <input type="color" id="issueColorInput" title="글자 색상" value="#10152b">
             <button type="button" id="issueImageBtn">🖼 이미지 삽입</button>
             <input type="file" id="issueInlineImageInput" accept="image/*" style="display:none;">
           </div>
@@ -2366,6 +2392,13 @@ body{
     `;
     card.addEventListener('click', () => openDetail(post));
     if(isAdmin){
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'issue-edit-btn';
+      editBtn.textContent = '수정';
+      editBtn.addEventListener('click', (e) => { e.stopPropagation(); openWrite(post); });
+      card.appendChild(editBtn);
+
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'issue-del-btn';
@@ -2444,8 +2477,13 @@ body{
     refreshIssues();
   });
 
-  /* ---- 글쓰기 ---- */
-  function openWrite(){
+  /* ---- 글쓰기 / 수정 ---- */
+  const issueWriteModalTitle = document.getElementById('issueWriteModalTitle');
+  let editingId = null;
+  let existingCoverURL = null, existingCoverPath = null;
+  let existingPdfURL = null, existingPdfPath = null, existingPdfName = null;
+
+  function openWrite(existingPost){
     issuesWriteForm.reset();
     issueBodyEditor.innerHTML = '';
     issueCoverDropText.textContent = '클릭해서 대표 이미지 선택';
@@ -2453,20 +2491,66 @@ body{
     issuesWriteMsg.textContent = ''; issuesWriteMsg.className = 'form-msg';
     issueUploadProgress.style.display = 'none';
     issueUploadProgressBar.style.width = '0%';
-    draftId = doc(collection(db, 'posts')).id;
-    draftInsertedImagePaths = [];
     draftCoverFile = null;
     draftPdfFile = null;
+
+    if(existingPost){
+      editingId = existingPost.id;
+      draftId = existingPost.id;
+      issueTitleInput.value = existingPost.title || '';
+      issueBodyEditor.innerHTML = existingPost.bodyHTML || '';
+      draftInsertedImagePaths = [...(existingPost.bodyImagePaths || [])];
+      existingCoverURL = existingPost.coverURL || null;
+      existingCoverPath = existingPost.coverPath || null;
+      existingPdfURL = existingPost.pdfURL || null;
+      existingPdfPath = existingPost.pdfPath || null;
+      existingPdfName = existingPost.pdfName || null;
+      if(existingCoverURL) issueCoverDropText.textContent = '기존 이미지 사용 중 (변경하려면 새로 선택)';
+      if(existingPdfName) issuePdfDropText.textContent = `기존 첨부: ${existingPdfName} (변경하려면 새로 선택)`;
+      issueWriteModalTitle.textContent = '이달의 상품 이슈 수정';
+      issueSubmitBtn.textContent = '수정 저장하기';
+    } else {
+      editingId = null;
+      draftId = doc(collection(db, 'posts')).id;
+      draftInsertedImagePaths = [];
+      existingCoverURL = null; existingCoverPath = null;
+      existingPdfURL = null; existingPdfPath = null; existingPdfName = null;
+      issueWriteModalTitle.textContent = '이달의 상품 이슈 작성';
+      issueSubmitBtn.textContent = '게시하기';
+    }
+
     issuesWriteOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
-  function closeWrite(){ issuesWriteOverlay.classList.remove('open'); document.body.style.overflow = ''; }
-  issuesWriteBtn.addEventListener('click', openWrite);
-  document.getElementById('issuesWriteCloseBtn').addEventListener('click', closeWrite);
-  issuesWriteOverlay.addEventListener('click', e => { if(e.target === issuesWriteOverlay) closeWrite(); });
+  function hasUnsavedContent(){
+    return issueTitleInput.value.trim() !== '' || issueBodyEditor.textContent.trim() !== '' || /<img/i.test(issueBodyEditor.innerHTML);
+  }
+  function closeWrite(force){
+    if(!force && hasUnsavedContent()){
+      if(!confirm('작성 중인 내용이 사라집니다. 닫으시겠습니까?')) return;
+    }
+    issuesWriteOverlay.classList.remove('open'); document.body.style.overflow = '';
+  }
+  issuesWriteBtn.addEventListener('click', () => openWrite(null));
+  document.getElementById('issuesWriteCloseBtn').addEventListener('click', () => closeWrite(false));
+  issuesWriteOverlay.addEventListener('click', e => { if(e.target === issuesWriteOverlay) closeWrite(false); });
+
+  // 제목 입력창에서 Enter를 눌러도 폼이 바로 제출(=모달이 닫힘)되지 않도록 방지
+  issueTitleInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); issueBodyEditor.focus(); }
+  });
 
   document.getElementById('issueBoldBtn').addEventListener('click', () => { issueBodyEditor.focus(); document.execCommand('bold'); });
   document.getElementById('issueItalicBtn').addEventListener('click', () => { issueBodyEditor.focus(); document.execCommand('italic'); });
+  document.getElementById('issueFontSelect').addEventListener('change', (e) => {
+    restoreSelection(); document.execCommand('fontName', false, e.target.value);
+  });
+  document.getElementById('issueSizeSelect').addEventListener('change', (e) => {
+    restoreSelection(); document.execCommand('fontSize', false, e.target.value);
+  });
+  document.getElementById('issueColorInput').addEventListener('input', (e) => {
+    restoreSelection(); document.execCommand('foreColor', false, e.target.value);
+  });
 
   let savedRange = null;
   issueBodyEditor.addEventListener('mouseup', saveSelection);
@@ -2549,16 +2633,16 @@ body{
     issuesWriteMsg.textContent = '게시 중입니다...'; issuesWriteMsg.className = 'form-msg';
 
     try{
-      let coverURL = null, coverPath = null;
+      let coverURL = existingCoverURL, coverPath = existingCoverPath;
       if(draftCoverFile){
         coverPath = `issues/${draftId}/cover-${Date.now()}.${extOf(draftCoverFile)}`;
         const res = await uploadWithProgress(coverPath, draftCoverFile);
         coverURL = res.url;
-      } else {
+      } else if(!editingId){
         coverURL = firstImageOf(bodyHTML);
       }
 
-      let pdfURL = null, pdfPath = null, pdfName = null;
+      let pdfURL = existingPdfURL, pdfPath = existingPdfPath, pdfName = existingPdfName;
       if(draftPdfFile){
         pdfPath = `issues/${draftId}/attachment-${Date.now()}.pdf`;
         const res = await uploadWithProgress(pdfPath, draftPdfFile);
@@ -2566,14 +2650,21 @@ body{
         pdfName = draftPdfFile.name;
       }
 
-      await setDoc(doc(db, 'posts', draftId), {
+      const payload = {
         title, bodyHTML, coverURL, coverPath, pdfURL, pdfPath, pdfName,
         bodyImagePaths: draftInsertedImagePaths,
-        createdAt: serverTimestamp(),
         authorEmail: auth.currentUser ? auth.currentUser.email : null
-      });
+      };
 
-      closeWrite();
+      if(editingId){
+        payload.updatedAt = serverTimestamp();
+        await setDoc(doc(db, 'posts', editingId), payload, { merge: true });
+      } else {
+        payload.createdAt = serverTimestamp();
+        await setDoc(doc(db, 'posts', draftId), payload);
+      }
+
+      closeWrite(true);
       await refreshIssues();
     } catch(err){
       issuesWriteMsg.textContent = '게시 중 오류가 발생했습니다: ' + (err.message || '');
