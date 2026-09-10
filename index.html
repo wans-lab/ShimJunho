@@ -659,6 +659,7 @@ body{
     color:var(--muted); font-size:13px; cursor:pointer; background:var(--bg-alt);
   }
   .form-drop:hover{ border-color:var(--blue); color:var(--blue); }
+  .form-drop.drag-over{ border-color:var(--blue); background:#eef4ff; color:var(--blue); }
   .form-drop input{ display:none; }
   .form-msg{ font-size:12.5px; margin-top:10px; }
   .form-msg.error{ color:#d3423e; }
@@ -971,7 +972,10 @@ body{
       <img id="issueDetailCover" class="issue-detail-cover" style="display:none;" alt="">
       <p class="issue-detail-date" id="issueDetailDate"></p>
       <div class="issue-detail-content" id="issueDetailContent"></div>
-      <a href="#" id="issueDetailPdf" class="issue-detail-pdf" style="display:none;" target="_blank" rel="noopener">📎 첨부 PDF 보기</a>
+      <div id="issueDetailPdfWrap" style="display:none; margin-top:20px;">
+        <a href="#" id="issueDetailPdf" class="issue-detail-pdf" target="_blank" rel="noopener">📎 첨부 PDF 보기</a>
+        <iframe id="issueDetailPdfFrame" style="width:100%; height:480px; border:1px solid var(--line); border-radius:10px; margin-top:12px;"></iframe>
+      </div>
     </div>
   </div>
 </div>
@@ -1015,10 +1019,11 @@ body{
         </div>
         <div class="form-row">
           <label for="issueCoverInput">대표 이미지 (선택 — 비워두면 본문 첫 이미지로 자동 지정)</label>
-          <label class="form-drop" id="issueCoverDropLabel" for="issueCoverInput">
-            <span id="issueCoverDropText">클릭해서 대표 이미지 선택</span>
+          <label class="form-drop" id="issueCoverDropLabel" for="issueCoverInput" tabindex="0">
+            <span id="issueCoverDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
             <input type="file" id="issueCoverInput" accept="image/*">
           </label>
+          <img id="issueCoverPreview" style="display:none; max-height:110px; border-radius:8px; margin-top:8px;" alt="대표 이미지 미리보기">
         </div>
         <div class="form-row">
           <label for="issueBodyEditor">본문</label>
@@ -1053,10 +1058,15 @@ body{
         </div>
         <div class="form-row">
           <label for="issuePdfInput">PDF 첨부 (선택)</label>
-          <label class="form-drop" id="issuePdfDropLabel" for="issuePdfInput">
-            <span id="issuePdfDropText">클릭해서 PDF 선택</span>
+          <label class="form-drop" id="issuePdfDropLabel" for="issuePdfInput" tabindex="0">
+            <span id="issuePdfDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
             <input type="file" id="issuePdfInput" accept="application/pdf">
           </label>
+          <div id="issuePdfActions" style="display:none; margin-top:8px; gap:10px; align-items:center;">
+            <button type="button" class="btn btn-outline btn-sm" id="issuePdfPreviewBtn">미리보기</button>
+            <button type="button" class="btn btn-outline btn-sm" id="issuePdfRemoveBtn">PDF 제거</button>
+          </div>
+          <iframe id="issuePdfPreviewFrame" style="display:none; width:100%; height:360px; border:1px solid var(--line); border-radius:10px; margin-top:10px;"></iframe>
         </div>
         <div class="form-progress" id="issueUploadProgress"><div class="bar" id="issueUploadProgressBar"></div></div>
         <button type="submit" class="btn btn-blue" style="width:100%; margin-top:6px;" id="issueSubmitBtn">게시하기</button>
@@ -2353,6 +2363,21 @@ body{
   const issueDetailDate = document.getElementById('issueDetailDate');
   const issueDetailContent = document.getElementById('issueDetailContent');
   const issueDetailPdf = document.getElementById('issueDetailPdf');
+  const issueDetailPdfWrap = document.getElementById('issueDetailPdfWrap');
+  const issueDetailPdfFrame = document.getElementById('issueDetailPdfFrame');
+  const issuePdfActions = document.getElementById('issuePdfActions');
+  const issuePdfPreviewFrame = document.getElementById('issuePdfPreviewFrame');
+
+  // 모달이 열려있는 동안 배경 페이지가 스크롤되지 않도록 html+body를 함께 잠금
+  // (body만 잠그면 브라우저에 따라 <html>이 스크롤 루트가 되어 바깥이 스크롤되는 문제가 있었음)
+  function lockScroll(){
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll(){
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
 
   function fmtDate(ts){
     if(!ts || !ts.toDate) return '';
@@ -2443,17 +2468,20 @@ body{
     }
     if(post.pdfURL){
       issueDetailPdf.href = post.pdfURL;
-      issueDetailPdf.style.display = 'inline-flex';
-      issueDetailPdf.textContent = `📎 ${post.pdfName || '첨부 PDF 보기'}`;
+      issueDetailPdf.textContent = `📎 ${post.pdfName || 'PDF'} 새 창에서 열기`;
+      issueDetailPdfFrame.src = post.pdfURL;
+      issueDetailPdfWrap.style.display = 'block';
     } else {
-      issueDetailPdf.style.display = 'none';
+      issueDetailPdfFrame.src = '';
+      issueDetailPdfWrap.style.display = 'none';
     }
     issueDetailOverlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
   function closeDetail(){
     issueDetailOverlay.classList.remove('open');
-    document.body.style.overflow = '';
+    issueDetailPdfFrame.src = '';
+    unlockScroll();
   }
   document.getElementById('issueDetailCloseBtn').addEventListener('click', closeDetail);
   issueDetailOverlay.addEventListener('click', e => { if(e.target === issueDetailOverlay) closeDetail(); });
@@ -2461,9 +2489,9 @@ body{
   /* ---- 관리자 로그인 ---- */
   function openLogin(){
     issuesLoginMsg.textContent = ''; issuesLoginMsg.className = 'form-msg';
-    issuesLoginOverlay.classList.add('open'); document.body.style.overflow = 'hidden';
+    issuesLoginOverlay.classList.add('open'); lockScroll();
   }
-  function closeLogin(){ issuesLoginOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+  function closeLogin(){ issuesLoginOverlay.classList.remove('open'); unlockScroll(); }
   issuesAdminBtn.addEventListener('click', openLogin);
   document.getElementById('issuesLoginCloseBtn').addEventListener('click', closeLogin);
   issuesLoginOverlay.addEventListener('click', e => { if(e.target === issuesLoginOverlay) closeLogin(); });
@@ -2497,18 +2525,25 @@ body{
   let editingId = null;
   let existingCoverURL = null, existingCoverPath = null;
   let existingPdfURL = null, existingPdfPath = null, existingPdfName = null;
+  let pdfRemoved = false;
 
   function openWrite(existingPost){
     issuesWriteForm.reset();
     issueBodyEditor.innerHTML = '';
-    issueCoverDropText.textContent = '클릭해서 대표 이미지 선택';
-    issuePdfDropText.textContent = '클릭해서 PDF 선택';
+    issueCoverDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    issuePdfDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    issueCoverPreview.style.display = 'none';
+    issueCoverPreview.src = '';
+    issuePdfActions.style.display = 'none';
+    issuePdfPreviewFrame.style.display = 'none';
+    issuePdfPreviewFrame.src = '';
     issuesWriteMsg.textContent = ''; issuesWriteMsg.className = 'form-msg';
     issueUploadProgress.style.display = 'none';
     issueUploadProgressBar.style.width = '0%';
     draftCoverFile = null;
     draftPdfFile = null;
     selectedImage = null;
+    pdfRemoved = false;
 
     if(existingPost){
       editingId = existingPost.id;
@@ -2521,8 +2556,15 @@ body{
       existingPdfURL = existingPost.pdfURL || null;
       existingPdfPath = existingPost.pdfPath || null;
       existingPdfName = existingPost.pdfName || null;
-      if(existingCoverURL) issueCoverDropText.textContent = '기존 이미지 사용 중 (변경하려면 새로 선택)';
-      if(existingPdfName) issuePdfDropText.textContent = `기존 첨부: ${existingPdfName} (변경하려면 새로 선택)`;
+      if(existingCoverURL){
+        issueCoverDropText.textContent = '기존 이미지 사용 중 (변경하려면 새로 선택/드래그/붙여넣기)';
+        issueCoverPreview.src = existingCoverURL;
+        issueCoverPreview.style.display = 'block';
+      }
+      if(existingPdfName){
+        issuePdfDropText.textContent = `기존 첨부: ${existingPdfName} (변경하려면 새로 선택)`;
+        issuePdfActions.style.display = 'flex';
+      }
       issueWriteModalTitle.textContent = '이달의 상품 이슈 수정';
       issueSubmitBtn.textContent = '수정 저장하기';
     } else {
@@ -2536,10 +2578,12 @@ body{
     }
 
     issuesWriteOverlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
   function closeWrite(){
-    issuesWriteOverlay.classList.remove('open'); document.body.style.overflow = '';
+    issuesWriteOverlay.classList.remove('open');
+    issuePdfPreviewFrame.src = '';
+    unlockScroll();
   }
   issuesWriteBtn.addEventListener('click', () => openWrite(null));
   document.getElementById('issuesWriteCloseBtn').addEventListener('click', () => closeWrite());
@@ -2699,13 +2743,87 @@ body{
   document.getElementById('issueImgAlignCenterBtn').addEventListener('click', () => alignImage('center'));
   document.getElementById('issueImgAlignRightBtn').addEventListener('click', () => alignImage('right'));
 
+  const issueCoverDropLabel = document.getElementById('issueCoverDropLabel');
+  const issueCoverPreview = document.getElementById('issueCoverPreview');
+  function setCoverFile(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return;
+    draftCoverFile = file;
+    issueCoverDropText.textContent = file.name;
+    issueCoverPreview.src = URL.createObjectURL(file);
+    issueCoverPreview.style.display = 'block';
+  }
   issueCoverInput.addEventListener('change', () => {
-    draftCoverFile = issueCoverInput.files[0] || null;
-    issueCoverDropText.textContent = draftCoverFile ? draftCoverFile.name : '클릭해서 대표 이미지 선택';
+    const file = issueCoverInput.files[0];
+    if(file) setCoverFile(file);
   });
+  issueCoverDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); issueCoverDropLabel.classList.add('drag-over'); });
+  issueCoverDropLabel.addEventListener('dragleave', () => issueCoverDropLabel.classList.remove('drag-over'));
+  issueCoverDropLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    issueCoverDropLabel.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) setCoverFile(file);
+  });
+  issueCoverDropLabel.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        setCoverFile(item.getAsFile());
+        return;
+      }
+    }
+  });
+
+  const issuePdfDropLabel = document.getElementById('issuePdfDropLabel');
+  function setPdfFile(file){
+    if(!file || file.type !== 'application/pdf') return;
+    draftPdfFile = file;
+    pdfRemoved = false;
+    issuePdfDropText.textContent = file.name;
+    issuePdfActions.style.display = 'flex';
+    issuePdfPreviewFrame.style.display = 'none';
+    issuePdfPreviewFrame.src = '';
+  }
   issuePdfInput.addEventListener('change', () => {
-    draftPdfFile = issuePdfInput.files[0] || null;
-    issuePdfDropText.textContent = draftPdfFile ? draftPdfFile.name : '클릭해서 PDF 선택';
+    const file = issuePdfInput.files[0];
+    if(file) setPdfFile(file);
+  });
+  issuePdfDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); issuePdfDropLabel.classList.add('drag-over'); });
+  issuePdfDropLabel.addEventListener('dragleave', () => issuePdfDropLabel.classList.remove('drag-over'));
+  issuePdfDropLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    issuePdfDropLabel.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) setPdfFile(file);
+  });
+  issuePdfDropLabel.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type === 'application/pdf'){
+        e.preventDefault();
+        setPdfFile(item.getAsFile());
+        return;
+      }
+    }
+  });
+
+  document.getElementById('issuePdfPreviewBtn').addEventListener('click', () => {
+    const url = draftPdfFile ? URL.createObjectURL(draftPdfFile) : existingPdfURL;
+    if(!url){ alert('먼저 PDF를 선택해주세요.'); return; }
+    issuePdfPreviewFrame.src = url;
+    issuePdfPreviewFrame.style.display = issuePdfPreviewFrame.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('issuePdfRemoveBtn').addEventListener('click', () => {
+    draftPdfFile = null;
+    pdfRemoved = true;
+    issuePdfInput.value = '';
+    issuePdfDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    issuePdfActions.style.display = 'none';
+    issuePdfPreviewFrame.style.display = 'none';
+    issuePdfPreviewFrame.src = '';
   });
 
   issuesWriteForm.addEventListener('submit', async (e) => {
@@ -2726,6 +2844,9 @@ body{
       if(draftCoverFile){
         coverPath = `issues/${draftId}/cover-${Date.now()}.${extOf(draftCoverFile)}`;
         const res = await uploadWithProgress(coverPath, draftCoverFile);
+        if(existingCoverPath && existingCoverPath !== coverPath){
+          deleteObject(ref(storage, existingCoverPath)).catch(() => {});
+        }
         coverURL = res.url;
       } else if(!editingId){
         coverURL = firstImageOf(bodyHTML);
@@ -2735,8 +2856,14 @@ body{
       if(draftPdfFile){
         pdfPath = `issues/${draftId}/attachment-${Date.now()}.pdf`;
         const res = await uploadWithProgress(pdfPath, draftPdfFile);
+        if(existingPdfPath && existingPdfPath !== pdfPath){
+          deleteObject(ref(storage, existingPdfPath)).catch(() => {});
+        }
         pdfURL = res.url;
         pdfName = draftPdfFile.name;
+      } else if(pdfRemoved){
+        if(existingPdfPath) deleteObject(ref(storage, existingPdfPath)).catch(() => {});
+        pdfURL = null; pdfPath = null; pdfName = null;
       }
 
       const payload = {
@@ -2785,7 +2912,7 @@ body{
     if(e.key !== 'Escape') return;
     if(issueDetailOverlay.classList.contains('open')) closeDetail();
     if(issuesLoginOverlay.classList.contains('open')) closeLogin();
-    // 글쓰기 모달은 Esc로 닫히지 않음 — 닫기(×) 버튼으로만 닫힘
+    if(issuesWriteOverlay.classList.contains('open')) closeWrite();
   });
 
   refreshIssues();
