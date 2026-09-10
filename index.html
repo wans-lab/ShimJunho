@@ -147,7 +147,7 @@ body{
 
   /* -------- Hero -------- */
   .hero{
-    min-height:100vh; display:flex; align-items:center;
+    min-height:100vh; min-height:100svh; display:flex; align-items:center;
     padding:110px 0 90px; position:relative; overflow:hidden; background:var(--blue); color:#fff;
   }
   .hero::before{
@@ -200,6 +200,18 @@ body{
     50%{ transform:translateX(-50%) translateY(7px); }
   }
   @media (max-width:640px){ .hero-scroll-btn{ bottom:16px; width:36px; height:36px; } }
+  /* 밝은 배경 섹션들에 쓰이는 스크롤 유도 버튼 (히어로용은 흰색, 이건 어두운 톤) */
+  .section-scroll-btn{
+    position:absolute; left:50%; bottom:22px; transform:translateX(-50%); z-index:2;
+    width:40px; height:40px; border-radius:50%; border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+    background:rgba(255,255,255,0.7); backdrop-filter:blur(4px);
+    animation:heroScrollBounce 2.2s ease-in-out infinite;
+    transition:background .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .section-scroll-btn:hover{ background:#fff; border-color:var(--blue); color:var(--blue); animation-play-state:paused; }
+  .section-scroll-btn svg{ width:16px; height:16px; }
+  @media (max-width:640px){ .section-scroll-btn{ bottom:12px; width:34px; height:34px; } }
   .hero-inner{ position:relative; z-index:1; display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px; align-items:center; }
   .hero-brand-badge{
     display:inline-flex; align-items:center; gap:8px; background:#fff; border-radius:999px;
@@ -253,7 +265,7 @@ body{
   }
 
   /* -------- Band shared -------- */
-  .band{ padding:130px 0; border-top:1px solid var(--line); }
+  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:100vh; min-height:100svh; display:grid; align-content:center; position:relative; }
   .band-alt{ background:var(--bg-alt); }
   .band-head{ text-align:center; max-width:640px; margin:0 auto 56px; }
   .band-head h2{ font-size:clamp(28px,3.6vw,42px); line-height:1.28; }
@@ -401,6 +413,7 @@ body{
   background:var(--bg-alt); 
   overflow:hidden; /* <-- 이 구문을 반드시 추가해 주세요! */
   width:100%;       /* <-- 안전하게 너비를 100%로 고정합니다. */
+  min-height:100vh; min-height:100svh; display:grid; align-content:center; position:relative;
 }
   .marquee-head{ text-align:center; padding:80px 0 46px; }
   .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; padding-bottom:80px; }
@@ -410,7 +423,7 @@ body{
   @media (max-width:640px){ .marquee-track img{ width:240px; height:180px; } }
 
   /* -------- CTA -------- */
-  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); }
+  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:100vh; min-height:100svh; display:grid; align-content:center; position:relative; }
   .cta h2{ font-size:clamp(28px,4vw,46px); margin-bottom:20px; }
   .cta p{ color:var(--muted); font-size:15px; margin-bottom:38px; }
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
@@ -916,6 +929,9 @@ body{
       <div><div class="num">98<small>%</small></div><div class="lbl">재상담 만족도</div></div>
     </div>
   </div>
+  <a href="#growth" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- GROWTH -->
@@ -947,6 +963,9 @@ body{
       </div>
     </div>
   </div>
+  <a href="#story" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- TIMELINE -->
@@ -965,6 +984,9 @@ body{
       <div class="t-item"><div class="dot"></div><div class="yr" id="timelineYear">2026</div><p>누적 상담 <span id="timelineLiveNum">0</span>건 이상 돌파<br>지금도 진행 중</p></div>
     </div>
   </div>
+  <a href="#example" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- example -->
@@ -1014,6 +1036,9 @@ body{
       <button type="button" class="claim-arrow claim-arrow-right" id="claimNext" aria-label="다음 이미지">›</button>
     </div>
   </div>
+  <a href="#partner" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 
@@ -1032,6 +1057,9 @@ body{
     <div class="partner-logos reveal"><img src="https://lh3.googleusercontent.com/d/1gQYPnVwNPI36sNBza3k5pIR7addBkAXK" loading="lazy"></div>
     <p class="partner-note"></p>
   </div>
+  <a href="#service" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- SERVICE -->
@@ -1060,6 +1088,9 @@ body{
       </div>
     </div>
   </div>
+  <a href="#issues" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- ISSUES (이달의 상품 이슈) -->
@@ -1084,6 +1115,9 @@ body{
     <p class="issues-empty" id="issuesEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
     <button type="button" class="issues-loadmore" id="issuesLoadMoreBtn">더 보기</button>
   </div>
+  <a href="#knowledge" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- KNOWLEDGE (보험 기초 상식) — 이달의 상품 이슈와 동일한 방식(Firebase), 별도 컬렉션 사용 -->
@@ -1108,6 +1142,9 @@ body{
     <p class="issues-empty" id="knowEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
     <button type="button" class="issues-loadmore" id="knowLoadMoreBtn">더 보기</button>
   </div>
+  <a href="#press" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- 이슈 상세 보기 -->
@@ -1413,6 +1450,9 @@ body{
     <p class="press-empty" id="pressEmpty" style="display:none;">지금은 보도자료를 불러올 수 없습니다.</p>
     <p class="press-more"><a href="https://www.azfinancial.co.kr/media" target="_blank" rel="noopener">AZ금융서비스 미디어룸에서 더 보기 →</a></p>
   </div>
+  <a href="#reference" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- REFERENCE LINKS (유용한 외부 사이트 바로가기) -->
@@ -1435,10 +1475,13 @@ body{
       </a>
     </div>
   </div>
+  <a href="#gallery" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- MARQUEE GALLERY -->
-<section class="marquee-section">
+<section class="marquee-section" id="gallery">
   <div class="marquee-head wrap reveal">
     <span class="eyebrow">The Future</span>
     <h2 style="text-align:center; font-size:clamp(24px,3vw,36px); max-width:680px; margin:0 auto;">오늘이 곧 미래인 것처럼,<br>하루를 소중히 여기는 마음으로.</h2>
@@ -1453,6 +1496,9 @@ body{
     <img src="https://lh3.googleusercontent.com/d/1OL2oygcHdQgDvw30kNmvqhjcc_dxPQAm" alt="보험(생명)">
     <img src="https://lh3.googleusercontent.com/d/113CEPoD6y3BzVrx8fFlMC6gVughFCQB4" alt="상해보험">
   </div>
+  <a href="#contact" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </section>
 
 <!-- CTA -->
