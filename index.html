@@ -534,22 +534,25 @@ body{
     background:#fff; transition:transform .2s ease, box-shadow .2s ease; position:relative;
   }
   .issue-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px -18px rgba(16,21,43,0.28); }
-  .issue-thumb{ aspect-ratio:16/10; background:var(--bg-panel); overflow:hidden; }
-  .issue-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .issue-thumb{
+    aspect-ratio:4/3; background:var(--bg-panel); overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .issue-thumb img{ width:100%; height:100%; object-fit:contain; display:block; }
   .issue-thumb .thumb-fallback{
     width:100%; height:100%; display:flex; align-items:center; justify-content:center;
     font-size:13px; color:var(--muted-dim); font-weight:700; background:var(--bg-panel);
   }
-  .issue-info{ padding:16px 18px 18px; }
+  .issue-info{ padding:11px 14px 13px; }
   .issue-title{
-    font-weight:800; font-size:15.5px; color:var(--ink); margin-bottom:6px;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4;
+    font-weight:800; font-size:13.5px; color:var(--ink); margin-bottom:4px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.35;
   }
   .issue-excerpt{
-    font-size:12.8px; color:var(--muted); line-height:1.6; margin-bottom:10px;
+    font-size:11.5px; color:var(--muted); line-height:1.5; margin-bottom:6px;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
-  .issue-date{ font-size:11.5px; color:var(--muted-dim); font-weight:600; }
+  .issue-date{ font-size:10.5px; color:var(--muted-dim); font-weight:600; }
   .issue-del-btn{
     position:absolute; top:10px; right:10px; z-index:2; border:none; background:rgba(16,21,43,0.78);
     color:#fff; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer;
