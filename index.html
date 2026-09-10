@@ -578,7 +578,14 @@ body{
 
   /* 글쓰기 에디터 */
   .issue-write-modal{ max-width:680px; }
-  .issue-editor-toolbar{ display:flex; gap:8px; margin-bottom:8px; }
+  .issue-editor-toolbar{ display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+  .issue-toolbar-sep{
+    font-size:11px; color:var(--muted-dim); font-weight:700; padding:0 2px 0 6px;
+    border-left:1px solid var(--line); margin-left:2px;
+  }
+  .issue-editor-body.drag-over{ outline:2px dashed var(--blue); outline-offset:-4px; background:#eef4ff; }
+  .issue-editor-body img.selected{ outline:2px solid var(--blue); outline-offset:2px; cursor:pointer; }
+  .issue-editor-body img{ cursor:pointer; }
   .issue-editor-toolbar button{
     border:1px solid var(--line); background:#fff; border-radius:8px; padding:7px 12px;
     font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer;
@@ -1031,10 +1038,18 @@ body{
               <option value="7">아주 크게</option>
             </select>
             <input type="color" id="issueColorInput" title="글자 색상" value="#10152b">
+            <span class="issue-toolbar-sep">텍스트정렬</span>
+            <button type="button" id="issueAlignLeftBtn" title="왼쪽 정렬">◀≡</button>
+            <button type="button" id="issueAlignCenterBtn" title="가운데 정렬">≡</button>
+            <button type="button" id="issueAlignRightBtn" title="오른쪽 정렬">≡▶</button>
+            <span class="issue-toolbar-sep">이미지배치</span>
+            <button type="button" id="issueImgAlignLeftBtn" title="선택한 이미지를 왼쪽에 배치(글이 오른쪽으로 흐름)">🖼◀</button>
+            <button type="button" id="issueImgAlignCenterBtn" title="선택한 이미지를 가운데 배치">🖼■</button>
+            <button type="button" id="issueImgAlignRightBtn" title="선택한 이미지를 오른쪽에 배치(글이 왼쪽으로 흐름)">🖼▶</button>
             <button type="button" id="issueImageBtn">🖼 이미지 삽입</button>
             <input type="file" id="issueInlineImageInput" accept="image/*" style="display:none;">
           </div>
-          <div class="issue-editor-body" id="issueBodyEditor" contenteditable="true" data-placeholder="글 내용을 입력하세요. 이미지는 위 '이미지 삽입' 버튼으로 원하는 위치에 넣을 수 있어요."></div>
+          <div class="issue-editor-body" id="issueBodyEditor" contenteditable="true" data-placeholder="글 내용을 입력하세요. 이미지는 버튼으로 삽입하거나, 파일을 드래그해서 놓거나, 복사한 이미지를 붙여넣기(Ctrl+V) 할 수 있어요. 삽입한 이미지를 클릭한 뒤 '이미지배치' 버튼으로 좌/중/우 배치를 정할 수 있어요."></div>
         </div>
         <div class="form-row">
           <label for="issuePdfInput">PDF 첨부 (선택)</label>
@@ -2493,6 +2508,7 @@ body{
     issueUploadProgressBar.style.width = '0%';
     draftCoverFile = null;
     draftPdfFile = null;
+    selectedImage = null;
 
     if(existingPost){
       editingId = existingPost.id;
@@ -2522,18 +2538,12 @@ body{
     issuesWriteOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
-  function hasUnsavedContent(){
-    return issueTitleInput.value.trim() !== '' || issueBodyEditor.textContent.trim() !== '' || /<img/i.test(issueBodyEditor.innerHTML);
-  }
-  function closeWrite(force){
-    if(!force && hasUnsavedContent()){
-      if(!confirm('작성 중인 내용이 사라집니다. 닫으시겠습니까?')) return;
-    }
+  function closeWrite(){
     issuesWriteOverlay.classList.remove('open'); document.body.style.overflow = '';
   }
   issuesWriteBtn.addEventListener('click', () => openWrite(null));
-  document.getElementById('issuesWriteCloseBtn').addEventListener('click', () => closeWrite(false));
-  issuesWriteOverlay.addEventListener('click', e => { if(e.target === issuesWriteOverlay) closeWrite(false); });
+  document.getElementById('issuesWriteCloseBtn').addEventListener('click', () => closeWrite());
+  // 바깥(어두운 배경) 클릭으로는 닫히지 않음 — 오직 닫기(×) 버튼으로만 닫힘
 
   // 제목 입력창에서 Enter를 눌러도 폼이 바로 제출(=모달이 닫힘)되지 않도록 방지
   issueTitleInput.addEventListener('keydown', (e) => {
@@ -2588,13 +2598,8 @@ body{
     });
   }
 
-  document.getElementById('issueImageBtn').addEventListener('click', () => {
-    saveSelection();
-    issueInlineImageInput.click();
-  });
-  issueInlineImageInput.addEventListener('change', async () => {
-    const file = issueInlineImageInput.files[0];
-    if(!file) return;
+  async function insertImageFile(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return;
     try{
       const path = `issues/${draftId}/body-${Date.now()}.${extOf(file)}`;
       const { url } = await uploadWithProgress(path, file);
@@ -2604,11 +2609,95 @@ body{
     } catch(err){
       alert('이미지 업로드 중 오류가 발생했습니다: ' + (err.message || ''));
     } finally {
-      issueInlineImageInput.value = '';
       issueUploadProgress.style.display = 'none';
       issueUploadProgressBar.style.width = '0%';
     }
+  }
+
+  document.getElementById('issueImageBtn').addEventListener('click', () => {
+    saveSelection();
+    issueInlineImageInput.click();
   });
+  issueInlineImageInput.addEventListener('change', async () => {
+    const file = issueInlineImageInput.files[0];
+    if(!file) return;
+    await insertImageFile(file);
+    issueInlineImageInput.value = '';
+  });
+
+  /* 드래그 앤 드롭으로 이미지 삽입 */
+  issueBodyEditor.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    issueBodyEditor.classList.add('drag-over');
+  });
+  issueBodyEditor.addEventListener('dragleave', () => {
+    issueBodyEditor.classList.remove('drag-over');
+  });
+  issueBodyEditor.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    issueBodyEditor.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!file || !file.type.startsWith('image/')) return;
+    const range = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+    if(range){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      savedRange = range;
+    } else {
+      saveSelection();
+    }
+    await insertImageFile(file);
+  });
+
+  /* 클립보드에서 이미지 붙여넣기 */
+  issueBodyEditor.addEventListener('paste', async (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        const file = item.getAsFile();
+        saveSelection();
+        await insertImageFile(file);
+        return;
+      }
+    }
+    // 이미지가 아니면 기본 텍스트 붙여넣기 동작 그대로 둠
+  });
+
+  /* 텍스트 정렬 */
+  document.getElementById('issueAlignLeftBtn').addEventListener('click', () => { issueBodyEditor.focus(); restoreSelection(); document.execCommand('justifyLeft'); });
+  document.getElementById('issueAlignCenterBtn').addEventListener('click', () => { issueBodyEditor.focus(); restoreSelection(); document.execCommand('justifyCenter'); });
+  document.getElementById('issueAlignRightBtn').addEventListener('click', () => { issueBodyEditor.focus(); restoreSelection(); document.execCommand('justifyRight'); });
+
+  /* 이미지 선택 후 배치(좌/중/우) 지정 */
+  let selectedImage = null;
+  issueBodyEditor.addEventListener('click', (e) => {
+    if(selectedImage) selectedImage.classList.remove('selected');
+    if(e.target.tagName === 'IMG'){
+      selectedImage = e.target;
+      selectedImage.classList.add('selected');
+    } else {
+      selectedImage = null;
+    }
+  });
+  function alignImage(pos){
+    if(!selectedImage){ alert('정렬할 이미지를 먼저 클릭해서 선택해주세요.'); return; }
+    if(pos === 'left'){
+      selectedImage.style.float = 'left'; selectedImage.style.display = '';
+      selectedImage.style.margin = '4px 16px 8px 0'; selectedImage.style.maxWidth = '45%';
+    } else if(pos === 'right'){
+      selectedImage.style.float = 'right'; selectedImage.style.display = '';
+      selectedImage.style.margin = '4px 0 8px 16px'; selectedImage.style.maxWidth = '45%';
+    } else {
+      selectedImage.style.float = 'none'; selectedImage.style.display = 'block';
+      selectedImage.style.margin = '12px auto'; selectedImage.style.maxWidth = '100%';
+    }
+  }
+  document.getElementById('issueImgAlignLeftBtn').addEventListener('click', () => alignImage('left'));
+  document.getElementById('issueImgAlignCenterBtn').addEventListener('click', () => alignImage('center'));
+  document.getElementById('issueImgAlignRightBtn').addEventListener('click', () => alignImage('right'));
 
   issueCoverInput.addEventListener('change', () => {
     draftCoverFile = issueCoverInput.files[0] || null;
@@ -2664,7 +2753,7 @@ body{
         await setDoc(doc(db, 'posts', draftId), payload);
       }
 
-      closeWrite(true);
+      closeWrite();
       await refreshIssues();
     } catch(err){
       issuesWriteMsg.textContent = '게시 중 오류가 발생했습니다: ' + (err.message || '');
@@ -2696,7 +2785,7 @@ body{
     if(e.key !== 'Escape') return;
     if(issueDetailOverlay.classList.contains('open')) closeDetail();
     if(issuesLoginOverlay.classList.contains('open')) closeLogin();
-    if(issuesWriteOverlay.classList.contains('open')) closeWrite();
+    // 글쓰기 모달은 Esc로 닫히지 않음 — 닫기(×) 버튼으로만 닫힘
   });
 
   refreshIssues();
