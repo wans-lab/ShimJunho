@@ -156,6 +156,17 @@ body{
     background:radial-gradient(circle, rgba(255,255,255,0.08), transparent 70%);
   }
   .hero-inner{ position:relative; z-index:1; display:grid; grid-template-columns:1.1fr 0.9fr; gap:60px; align-items:center; }
+  .hero-brand-badge{
+    display:inline-flex; align-items:center; gap:8px; background:#fff; border-radius:999px;
+    padding:6px 16px 6px 6px; margin-bottom:16px; text-decoration:none;
+    box-shadow:0 8px 20px -10px rgba(0,0,0,0.3); transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .hero-brand-badge:hover{ transform:translateY(-2px); box-shadow:0 12px 26px -10px rgba(0,0,0,0.4); }
+  .hero-brand-mark{
+    width:26px; height:26px; border-radius:50%; background:var(--blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11.5px;
+  }
+  .hero-brand-text{ font-weight:800; font-size:11.5px; letter-spacing:0.03em; color:var(--blue-dark); }
   .hero-tag{ font-family:var(--font-accent); font-style:italic; font-size:17px; color:rgba(255,255,255,0.85); margin-bottom:16px; }
   .hero h1{ font-size:clamp(36px,5vw,60px); line-height:1.18; color:#fff; }
   .hero h1 .accent{ color:#fff; }
@@ -797,6 +808,10 @@ body{
 <section class="hero" id="top">
   <div class="wrap hero-inner">
     <div class="reveal">
+      <a href="https://www.azfinancial.co.kr/" target="_blank" rel="noopener" class="hero-brand-badge">
+        <span class="hero-brand-mark">AZ</span>
+        <span class="hero-brand-text">FINANCIAL SERVICE</span>
+      </a>
       <div class="hero-tag">AZ금융서비스 · Insurance Consulting</div>
       <h1>보험,<br>그 <span class="accent">이상</span>을 하다.</h1>
       <p class="hero-sub">AZ금융서비스 심준호 부지점장입니다. 팩트에 기반한 비교설계와 체계적인 사후관리로 고객님의 평생 보험 파트너가 되겠습니다.</p>
