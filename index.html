@@ -2392,17 +2392,22 @@ body{
     return m ? m[1] : null;
   }
 
+  let refreshToken = 0;
   async function refreshIssues(){
-    issuesGrid.innerHTML = '';
+    const myToken = ++refreshToken;
+    let docs = [];
     try{
       const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
       const snap = await getDocs(q);
-      allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch(err){
       console.error(err);
-      allPosts = [];
+      docs = [];
     }
+    if(myToken !== refreshToken) return; // 이 사이에 더 최신 refreshIssues() 호출이 있었다면 이 결과는 버림 (중복 렌더 방지)
+    allPosts = docs;
     shownCount = 0;
+    issuesGrid.innerHTML = '';
     renderMore();
   }
 
@@ -2915,7 +2920,8 @@ body{
     if(issuesWriteOverlay.classList.contains('open')) closeWrite();
   });
 
-  refreshIssues();
+  // 초기 목록 로딩은 onAuthStateChanged가 페이지 로드 시 한 번은 반드시 호출되므로 거기서 처리함
+  // (여기서 별도로 refreshIssues()를 또 부르면 두 호출이 겹치면서 카드가 중복으로 그려지는 문제가 있었음)
 </script>
 </body>
 </html>
