@@ -658,6 +658,30 @@ body{
     .press-date{ font-size:11.5px; }
   }
 
+  /* -------- Reference (유용한 사이트 바로가기) -------- */
+  .reflink-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:20px; }
+  .reflink-card{
+    display:flex; align-items:center; gap:16px; padding:22px 24px; border:1px solid var(--line);
+    border-radius:16px; background:#fff; text-decoration:none; color:inherit;
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .reflink-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px -18px rgba(16,21,43,0.28); border-color:var(--blue); }
+  .reflink-icon{
+    width:52px; height:52px; border-radius:14px; background:var(--bg-panel); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+  }
+  .reflink-body{ flex:1; min-width:0; }
+  .reflink-name{ font-weight:800; font-size:15.5px; color:var(--ink); margin-bottom:4px; }
+  .reflink-desc{ font-size:12.5px; color:var(--muted); line-height:1.6; }
+  .reflink-arrow{ font-size:18px; color:var(--muted-dim); flex-shrink:0; transition:transform .2s ease, color .2s ease; }
+  .reflink-card:hover .reflink-arrow{ color:var(--blue); transform:translateX(4px); }
+  @media (max-width:640px){
+    .reflink-card{ padding:18px; gap:12px; }
+    .reflink-icon{ width:44px; height:44px; font-size:20px; }
+    .reflink-name{ font-size:14px; }
+    .reflink-desc{ font-size:11.5px; }
+  }
+
   /* Login / upload modal helpers */
   .modal-sm{ max-width:440px; }
   .form-row{ margin-bottom:16px; }
@@ -736,6 +760,7 @@ body{
       <a href="#partner">파트너</a>
       <!-- <a href="#materials">보험사 소식지</a> -->
       <a href="#issues">이달의 상품 이슈</a>
+      <a href="#knowledge">보험 기초 상식</a>
       <a href="#contact">상담문의</a>
     </nav>
     <div class="nav-cta">
@@ -759,6 +784,7 @@ body{
     <a href="#partner">파트너</a>
     <!-- <a href="#materials">보험사 소식지</a> -->
     <a href="#issues">이달의 상품 이슈</a>
+    <a href="#knowledge">보험 기초 상식</a>
     <a href="#contact">상담문의</a>
   </nav>
   <div class="mobile-menu-actions">
@@ -974,6 +1000,30 @@ body{
   </div>
 </section>
 
+<!-- KNOWLEDGE (보험 기초 상식) — 이달의 상품 이슈와 동일한 방식(Firebase), 별도 컬렉션 사용 -->
+<section class="band" id="knowledge">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">Guide</span>
+      <h2>보험 기초 상식</h2>
+      <p>보험을 처음 준비하신다면 알아두면 좋은 기초 지식을 정리해드립니다.</p>
+    </div>
+
+    <div class="issues-toolbar reveal">
+      <span class="issues-count" id="knowCount"></span>
+      <div class="issues-adminbar" id="knowAdminBar">
+        <button type="button" class="btn btn-blue btn-sm" id="knowWriteBtn">글쓰기</button>
+        <button type="button" class="btn btn-outline btn-sm" id="knowLogoutBtn">로그아웃</button>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="knowAdminBtn">관리자</button>
+    </div>
+
+    <div class="issues-grid reveal-group" id="knowGrid"></div>
+    <p class="issues-empty" id="knowEmpty" style="display:none;">아직 등록된 글이 없습니다.</p>
+    <button type="button" class="issues-loadmore" id="knowLoadMoreBtn">더 보기</button>
+  </div>
+</section>
+
 <!-- 이슈 상세 보기 -->
 <div class="privacy-overlay" id="issueDetailOverlay">
   <div class="privacy-modal issue-detail-modal" role="dialog" aria-modal="true">
@@ -1098,6 +1148,130 @@ body{
   </div>
 </div>
 
+<!-- 보험 기초 상식 상세 보기 -->
+<div class="privacy-overlay" id="knowDetailOverlay">
+  <div class="privacy-modal issue-detail-modal" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3 id="knowDetailTitle">제목</h3>
+      <button type="button" class="privacy-modal-close" id="knowDetailCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="issue-detail-body">
+      <p class="issue-detail-date" id="knowDetailDate"></p>
+      <div class="issue-detail-content" id="knowDetailContent"></div>
+      <div id="knowDetailPdfWrap" style="display:none; margin-top:20px;">
+        <a href="#" id="knowDetailPdf" class="issue-detail-pdf" target="_blank" rel="noopener">📎 첨부 PDF 보기</a>
+        <iframe id="knowDetailPdfFrame" style="width:100%; height:480px; border:1px solid var(--line); border-radius:10px; margin-top:12px;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 보험 기초 상식 관리자 로그인 -->
+<div class="privacy-overlay" id="knowLoginOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>관리자 로그인</h3>
+      <button type="button" class="privacy-modal-close" id="knowLoginCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="knowLoginForm">
+        <div class="form-row">
+          <label for="knowLoginEmail">이메일</label>
+          <input type="email" id="knowLoginEmail" required autocomplete="username">
+        </div>
+        <div class="form-row">
+          <label for="knowLoginPassword">비밀번호</label>
+          <input type="password" id="knowLoginPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-blue" style="width:100%;">로그인</button>
+      </form>
+      <p class="form-msg" id="knowLoginMsg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 보험 기초 상식 글쓰기 -->
+<div class="privacy-overlay" id="knowWriteOverlay">
+  <div class="privacy-modal issue-write-modal" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3 id="knowWriteModalTitle">보험 기초 상식 작성</h3>
+      <button type="button" class="privacy-modal-close" id="knowWriteCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="knowWriteForm">
+        <div class="form-row">
+          <label for="knowTitleInput">제목</label>
+          <input type="text" id="knowTitleInput" required>
+        </div>
+        <div class="form-row">
+          <label for="knowCoverInput">대표 이미지 (선택 — 비워두면 본문 첫 이미지로 자동 지정)</label>
+          <label class="form-drop" id="knowCoverDropLabel" for="knowCoverInput" tabindex="0">
+            <span id="knowCoverDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
+            <input type="file" id="knowCoverInput" accept="image/*">
+          </label>
+          <img id="knowCoverPreview" style="display:none; max-height:110px; border-radius:8px; margin-top:8px;" alt="대표 이미지 미리보기">
+        </div>
+        <div class="form-row">
+          <label for="knowBodyEditor">본문</label>
+          <div class="issue-editor-toolbar">
+            <div class="issue-toolbar-row">
+              <span class="issue-toolbar-label">서식</span>
+              <button type="button" id="knowBoldBtn" title="굵게"><b>B</b></button>
+              <button type="button" id="knowItalicBtn" title="기울임"><i>I</i></button>
+              <select id="knowFontSelect" title="글꼴">
+                <option value="'Pretendard', sans-serif" selected>기본 고딕</option>
+                <option value="Georgia, serif">명조(세리프)</option>
+                <option value="'Courier New', monospace">타자체</option>
+                <option value="Arial, sans-serif">Arial</option>
+              </select>
+              <select id="knowSizeSelect" title="글자 크기">
+                <option value="2">작게</option>
+                <option value="3" selected>보통</option>
+                <option value="5">크게</option>
+                <option value="7">아주 크게</option>
+              </select>
+              <input type="color" id="knowColorInput" title="글자 색상" value="#10152b">
+            </div>
+            <div class="issue-toolbar-row">
+              <span class="issue-toolbar-label">글 정렬</span>
+              <button type="button" id="knowAlignLeftBtn">왼쪽</button>
+              <button type="button" id="knowAlignCenterBtn">가운데</button>
+              <button type="button" id="knowAlignRightBtn">오른쪽</button>
+            </div>
+            <div class="issue-toolbar-row">
+              <span class="issue-toolbar-label">이미지 배치</span>
+              <button type="button" id="knowImgAlignLeftBtn" title="글이 이미지 오른쪽으로 흐름">왼쪽</button>
+              <button type="button" id="knowImgAlignCenterBtn">가운데</button>
+              <button type="button" id="knowImgAlignRightBtn" title="글이 이미지 왼쪽으로 흐름">오른쪽</button>
+              <span class="issue-toolbar-hint">↳ 본문 안 이미지를 먼저 클릭해서 선택한 뒤 눌러주세요</span>
+            </div>
+            <div class="issue-toolbar-row">
+              <button type="button" id="knowImageBtn" class="issue-toolbar-primary">🖼️ 이미지 삽입</button>
+              <input type="file" id="knowInlineImageInput" accept="image/*" style="display:none;">
+            </div>
+          </div>
+          <div class="issue-editor-body" id="knowBodyEditor" contenteditable="true" data-placeholder="글 내용을 입력하세요. 이미지는 버튼으로 삽입하거나, 파일을 드래그해서 놓거나, 복사한 이미지를 붙여넣기(Ctrl+V) 할 수 있어요. 삽입한 이미지를 클릭한 뒤 '이미지배치' 버튼으로 좌/중/우 배치를 정할 수 있어요."></div>
+        </div>
+        <div class="form-row">
+          <label for="knowPdfInput">PDF 첨부 (선택)</label>
+          <label class="form-drop" id="knowPdfDropLabel" for="knowPdfInput" tabindex="0">
+            <span id="knowPdfDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
+            <input type="file" id="knowPdfInput" accept="application/pdf">
+          </label>
+          <div id="knowPdfActions" style="display:none; margin-top:8px; gap:10px; align-items:center;">
+            <button type="button" class="btn btn-outline btn-sm" id="knowPdfPreviewBtn">미리보기</button>
+            <button type="button" class="btn btn-outline btn-sm" id="knowPdfRemoveBtn">PDF 제거</button>
+          </div>
+          <iframe id="knowPdfPreviewFrame" style="display:none; width:100%; height:360px; border:1px solid var(--line); border-radius:10px; margin-top:10px;"></iframe>
+        </div>
+        <div class="form-progress" id="knowUploadProgress"><div class="bar" id="knowUploadProgressBar"></div></div>
+        <button type="submit" class="btn btn-blue" style="width:100%; margin-top:6px;" id="knowSubmitBtn">게시하기</button>
+      </form>
+      <p class="form-msg" id="knowWriteMsg"></p>
+    </div>
+  </div>
+</div>
+
 <!-- MATERIALS
 <section class="band" id="materials">
   <div class="wrap">
@@ -1152,6 +1326,28 @@ body{
     <div class="press-list reveal-group" id="pressList"></div>
     <p class="press-empty" id="pressEmpty" style="display:none;">지금은 보도자료를 불러올 수 없습니다.</p>
     <p class="press-more"><a href="https://www.azfinancial.co.kr/media" target="_blank" rel="noopener">AZ금융서비스 미디어룸에서 더 보기 →</a></p>
+  </div>
+</section>
+
+<!-- REFERENCE LINKS (유용한 외부 사이트 바로가기) -->
+<section class="band" id="reference">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">Reference</span>
+      <h2>알아두면 유용한 사이트</h2>
+      <p>보험을 준비하실 때 참고하시면 도움이 될 만한 외부 정보 사이트를 소개합니다.</p>
+    </div>
+
+    <div class="reflink-grid reveal-group">
+      <a href="https://silsoncheck.com/" target="_blank" rel="noopener" class="reflink-card">
+        <div class="reflink-icon">🩺</div>
+        <div class="reflink-body">
+          <div class="reflink-name">실손체크</div>
+          <div class="reflink-desc">도수치료·MRI·백내장 등 주요 치료가 내 실손보험 세대에서 보장되는지 1분 안에 확인할 수 있는 정보 사이트예요.</div>
+        </div>
+        <div class="reflink-arrow">→</div>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -2971,6 +3167,617 @@ body{
 
   // 초기 목록 로딩은 onAuthStateChanged가 페이지 로드 시 한 번은 반드시 호출되므로 거기서 처리함
   // (여기서 별도로 refreshIssues()를 또 부르면 두 호출이 겹치면서 카드가 중복으로 그려지는 문제가 있었음)
+</script>
+
+<!-- 보험 기초 상식: 이달의 상품 이슈와 동일한 Firebase(Firestore + Storage + Auth) 사용, 별도 컬렉션(knowledge) -->
+<!-- 관리자 로그인은 같은 Firebase 앱/인증을 재사용하므로 한쪽에서 로그인하면 양쪽 다 관리자 상태가 됨 -->
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA_xLaF-zfI-aIidRxcJuflNzYEU9zFdtU",
+    authDomain: "simjunho-insurance.firebaseapp.com",
+    projectId: "simjunho-insurance",
+    storageBucket: "simjunho-insurance.firebasestorage.app",
+    messagingSenderId: "579184940244",
+    appId: "1:579184940244:web:f7585fc0daeb9741b41741"
+  };
+
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig); // 이슈 스크립트가 이미 초기화했으면 그걸 재사용 (같은 로그인 세션 공유)
+  const db = getFirestore(app, "shimfinancial-blog");
+  const storage = getStorage(app);
+  const auth = getAuth(app);
+
+  const PAGE_SIZE = 6;
+  let allKnow = [];
+  let shownCount = 0;
+  let isAdmin = false;
+  let draftId = null;
+  let draftInsertedImagePaths = [];
+  let draftCoverFile = null;
+  let draftPdfFile = null;
+
+  const knowGrid = document.getElementById('knowGrid');
+  const knowEmpty = document.getElementById('knowEmpty');
+  const knowCount = document.getElementById('knowCount');
+  const knowLoadMoreBtn = document.getElementById('knowLoadMoreBtn');
+  const knowAdminBar = document.getElementById('knowAdminBar');
+  const knowAdminBtn = document.getElementById('knowAdminBtn');
+  const knowWriteBtn = document.getElementById('knowWriteBtn');
+  const knowLogoutBtn = document.getElementById('knowLogoutBtn');
+
+  const knowLoginOverlay = document.getElementById('knowLoginOverlay');
+  const knowLoginForm = document.getElementById('knowLoginForm');
+  const knowLoginMsg = document.getElementById('knowLoginMsg');
+
+  const knowWriteOverlay = document.getElementById('knowWriteOverlay');
+  const knowWriteForm = document.getElementById('knowWriteForm');
+  const knowWriteMsg = document.getElementById('knowWriteMsg');
+  const knowTitleInput = document.getElementById('knowTitleInput');
+  const knowBodyEditor = document.getElementById('knowBodyEditor');
+  const knowCoverInput = document.getElementById('knowCoverInput');
+  const knowCoverDropText = document.getElementById('knowCoverDropText');
+  const knowPdfInput = document.getElementById('knowPdfInput');
+  const knowPdfDropText = document.getElementById('knowPdfDropText');
+  const knowInlineImageInput = document.getElementById('knowInlineImageInput');
+  const knowUploadProgress = document.getElementById('knowUploadProgress');
+  const knowUploadProgressBar = document.getElementById('knowUploadProgressBar');
+  const knowSubmitBtn = document.getElementById('knowSubmitBtn');
+
+  const knowDetailOverlay = document.getElementById('knowDetailOverlay');
+  const knowDetailTitle = document.getElementById('knowDetailTitle');
+  const knowDetailDate = document.getElementById('knowDetailDate');
+  const knowDetailContent = document.getElementById('knowDetailContent');
+  const knowDetailPdf = document.getElementById('knowDetailPdf');
+  const knowDetailPdfWrap = document.getElementById('knowDetailPdfWrap');
+  const knowDetailPdfFrame = document.getElementById('knowDetailPdfFrame');
+  const knowPdfActions = document.getElementById('knowPdfActions');
+  const knowPdfPreviewFrame = document.getElementById('knowPdfPreviewFrame');
+
+  function lockScroll(){
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockScroll(){
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+
+  function fmtDate(ts){
+    if(!ts || !ts.toDate) return '';
+    const d = ts.toDate();
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function excerptOf(html){
+    return (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
+  }
+  function firstImageOf(html){
+    const m = (html || '').match(/<img[^>]+src="([^"]+)"/i);
+    return m ? m[1] : null;
+  }
+
+  let refreshToken = 0;
+  async function refreshKnow(){
+    const myToken = ++refreshToken;
+    let docs = [];
+    try{
+      const q = query(collection(db, 'knowledge'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(err){
+      console.error(err);
+      docs = [];
+    }
+    if(myToken !== refreshToken) return;
+    allKnow = docs;
+    shownCount = 0;
+    knowGrid.innerHTML = '';
+    renderMore();
+  }
+
+  function renderMore(){
+    const next = allKnow.slice(shownCount, shownCount + PAGE_SIZE);
+    next.forEach(post => knowGrid.appendChild(renderCard(post)));
+    shownCount += next.length;
+
+    knowEmpty.style.display = allKnow.length === 0 ? 'block' : 'none';
+    knowCount.textContent = allKnow.length ? `전체 ${allKnow.length}건` : '';
+    knowLoadMoreBtn.style.display = shownCount < allKnow.length ? 'block' : 'none';
+  }
+
+  function renderCard(post){
+    const card = document.createElement('div');
+    card.className = 'issue-card reveal';
+    const cover = post.coverURL || firstImageOf(post.bodyHTML);
+    card.innerHTML = `
+      <div class="issue-thumb">
+        ${cover ? `<img src="${cover}" alt="">` : `<div class="thumb-fallback">보험 기초 상식</div>`}
+      </div>
+      <div class="issue-info">
+        <div class="issue-title">${escapeHtml(post.title || '')}</div>
+        <div class="issue-excerpt">${escapeHtml(excerptOf(post.bodyHTML))}</div>
+        <div class="issue-date">${fmtDate(post.createdAt)}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => openDetail(post));
+    if(isAdmin){
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'issue-edit-btn';
+      editBtn.textContent = '수정';
+      editBtn.addEventListener('click', (e) => { e.stopPropagation(); openWrite(post); });
+      card.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'issue-del-btn';
+      delBtn.textContent = '삭제';
+      delBtn.addEventListener('click', (e) => { e.stopPropagation(); deletePost(post); });
+      card.appendChild(delBtn);
+    }
+    card.classList.add('in-view');
+    return card;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function openDetail(post){
+    knowDetailTitle.textContent = post.title || '';
+    knowDetailDate.textContent = fmtDate(post.createdAt);
+    knowDetailContent.innerHTML = post.bodyHTML || '';
+    if(post.pdfURL){
+      knowDetailPdf.href = post.pdfURL;
+      knowDetailPdf.textContent = `📎 ${post.pdfName || 'PDF'} 새 창에서 열기`;
+      knowDetailPdfFrame.src = post.pdfURL;
+      knowDetailPdfWrap.style.display = 'block';
+    } else {
+      knowDetailPdfFrame.src = '';
+      knowDetailPdfWrap.style.display = 'none';
+    }
+    knowDetailOverlay.classList.add('open');
+    lockScroll();
+  }
+  function closeDetail(){
+    knowDetailOverlay.classList.remove('open');
+    knowDetailPdfFrame.src = '';
+    unlockScroll();
+  }
+  document.getElementById('knowDetailCloseBtn').addEventListener('click', closeDetail);
+  // 바깥(어두운 배경) 클릭으로는 닫히지 않음 — 닫기(×) 버튼 또는 Esc로만 닫힘
+
+  /* ---- 관리자 로그인 ---- */
+  function openLogin(){
+    knowLoginMsg.textContent = ''; knowLoginMsg.className = 'form-msg';
+    knowLoginOverlay.classList.add('open'); lockScroll();
+  }
+  function closeLogin(){ knowLoginOverlay.classList.remove('open'); unlockScroll(); }
+  knowAdminBtn.addEventListener('click', openLogin);
+  document.getElementById('knowLoginCloseBtn').addEventListener('click', closeLogin);
+
+  knowLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('knowLoginEmail').value.trim();
+    const pw = document.getElementById('knowLoginPassword').value;
+    knowLoginMsg.textContent = '로그인 중...'; knowLoginMsg.className = 'form-msg';
+    try{
+      await signInWithEmailAndPassword(auth, email, pw);
+      knowLoginForm.reset();
+      closeLogin();
+    } catch(err){
+      knowLoginMsg.textContent = '로그인에 실패했습니다. 이메일/비밀번호를 확인해주세요.';
+      knowLoginMsg.className = 'form-msg error';
+    }
+  });
+
+  knowLogoutBtn.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    isAdmin = !!user;
+    knowAdminBar.classList.toggle('on', isAdmin);
+    knowAdminBtn.style.display = isAdmin ? 'none' : 'inline-flex';
+    refreshKnow();
+  });
+
+  /* ---- 글쓰기 / 수정 ---- */
+  const knowWriteModalTitle = document.getElementById('knowWriteModalTitle');
+  let editingId = null;
+  let existingCoverURL = null, existingCoverPath = null;
+  let existingPdfURL = null, existingPdfPath = null, existingPdfName = null;
+  let pdfRemoved = false;
+
+  function openWrite(existingPost){
+    knowWriteForm.reset();
+    knowBodyEditor.innerHTML = '';
+    knowCoverDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    knowPdfDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    knowCoverPreview.style.display = 'none';
+    knowCoverPreview.src = '';
+    knowPdfActions.style.display = 'none';
+    knowPdfPreviewFrame.style.display = 'none';
+    knowPdfPreviewFrame.src = '';
+    knowWriteMsg.textContent = ''; knowWriteMsg.className = 'form-msg';
+    knowUploadProgress.style.display = 'none';
+    knowUploadProgressBar.style.width = '0%';
+    draftCoverFile = null;
+    draftPdfFile = null;
+    selectedImage = null;
+    pdfRemoved = false;
+
+    if(existingPost){
+      editingId = existingPost.id;
+      draftId = existingPost.id;
+      knowTitleInput.value = existingPost.title || '';
+      knowBodyEditor.innerHTML = existingPost.bodyHTML || '';
+      draftInsertedImagePaths = [...(existingPost.bodyImagePaths || [])];
+      existingCoverURL = existingPost.coverURL || null;
+      existingCoverPath = existingPost.coverPath || null;
+      existingPdfURL = existingPost.pdfURL || null;
+      existingPdfPath = existingPost.pdfPath || null;
+      existingPdfName = existingPost.pdfName || null;
+      if(existingCoverURL){
+        knowCoverDropText.textContent = '기존 이미지 사용 중 (변경하려면 새로 선택/드래그/붙여넣기)';
+        knowCoverPreview.src = existingCoverURL;
+        knowCoverPreview.style.display = 'block';
+      }
+      if(existingPdfName){
+        knowPdfDropText.textContent = `기존 첨부: ${existingPdfName} (변경하려면 새로 선택)`;
+        knowPdfActions.style.display = 'flex';
+      }
+      knowWriteModalTitle.textContent = '보험 기초 상식 수정';
+      knowSubmitBtn.textContent = '수정 저장하기';
+    } else {
+      editingId = null;
+      draftId = doc(collection(db, 'knowledge')).id;
+      draftInsertedImagePaths = [];
+      existingCoverURL = null; existingCoverPath = null;
+      existingPdfURL = null; existingPdfPath = null; existingPdfName = null;
+      knowWriteModalTitle.textContent = '보험 기초 상식 작성';
+      knowSubmitBtn.textContent = '게시하기';
+    }
+
+    knowWriteOverlay.classList.add('open');
+    lockScroll();
+    setTimeout(() => knowTitleInput.focus(), 50);
+  }
+  function closeWrite(){
+    knowWriteOverlay.classList.remove('open');
+    knowPdfPreviewFrame.src = '';
+    unlockScroll();
+  }
+  knowWriteBtn.addEventListener('click', () => openWrite(null));
+  document.getElementById('knowWriteCloseBtn').addEventListener('click', () => closeWrite());
+  // 바깥(어두운 배경) 클릭으로는 닫히지 않음 — 오직 닫기(×) 버튼으로만 닫힘
+
+  knowTitleInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); knowBodyEditor.focus(); }
+  });
+
+  document.getElementById('knowBoldBtn').addEventListener('click', () => { knowBodyEditor.focus(); document.execCommand('bold'); });
+  document.getElementById('knowItalicBtn').addEventListener('click', () => { knowBodyEditor.focus(); document.execCommand('italic'); });
+  document.getElementById('knowFontSelect').addEventListener('change', (e) => {
+    restoreSelection(); document.execCommand('fontName', false, e.target.value);
+  });
+  document.getElementById('knowSizeSelect').addEventListener('change', (e) => {
+    restoreSelection(); document.execCommand('fontSize', false, e.target.value);
+  });
+  document.getElementById('knowColorInput').addEventListener('input', (e) => {
+    restoreSelection(); document.execCommand('foreColor', false, e.target.value);
+  });
+
+  let savedRange = null;
+  knowBodyEditor.addEventListener('mouseup', saveSelection);
+  knowBodyEditor.addEventListener('keyup', saveSelection);
+  function saveSelection(){
+    const sel = window.getSelection();
+    if(sel.rangeCount) savedRange = sel.getRangeAt(0);
+  }
+  function restoreSelection(){
+    knowBodyEditor.focus();
+    if(savedRange){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+  }
+
+  function extOf(file){
+    const parts = file.name.split('.');
+    return parts.length > 1 ? parts.pop() : 'dat';
+  }
+
+  function uploadWithProgress(path, file){
+    return new Promise((resolve, reject) => {
+      const sref = ref(storage, path);
+      const task = uploadBytesResumable(sref, file);
+      knowUploadProgress.style.display = 'block';
+      task.on('state_changed', (snap) => {
+        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        knowUploadProgressBar.style.width = pct + '%';
+      }, reject, async () => {
+        const url = await getDownloadURL(task.snapshot.ref);
+        resolve({ url, path });
+      });
+    });
+  }
+
+  async function insertImageFile(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return;
+    try{
+      const path = `knowledge/${draftId}/body-${Date.now()}.${extOf(file)}`;
+      const { url } = await uploadWithProgress(path, file);
+      draftInsertedImagePaths.push(path);
+      restoreSelection();
+      document.execCommand('insertHTML', false, `<img src="${url}" alt=""><br>`);
+    } catch(err){
+      alert('이미지 업로드 중 오류가 발생했습니다: ' + (err.message || ''));
+    } finally {
+      knowUploadProgress.style.display = 'none';
+      knowUploadProgressBar.style.width = '0%';
+    }
+  }
+
+  document.getElementById('knowImageBtn').addEventListener('click', () => {
+    saveSelection();
+    knowInlineImageInput.click();
+  });
+  knowInlineImageInput.addEventListener('change', async () => {
+    const file = knowInlineImageInput.files[0];
+    if(!file) return;
+    await insertImageFile(file);
+    knowInlineImageInput.value = '';
+  });
+
+  knowBodyEditor.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    knowBodyEditor.classList.add('drag-over');
+  });
+  knowBodyEditor.addEventListener('dragleave', () => {
+    knowBodyEditor.classList.remove('drag-over');
+  });
+  knowBodyEditor.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    knowBodyEditor.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!file || !file.type.startsWith('image/')) return;
+    const range = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+    if(range){
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      savedRange = range;
+    } else {
+      saveSelection();
+    }
+    await insertImageFile(file);
+  });
+
+  knowBodyEditor.addEventListener('paste', async (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        const file = item.getAsFile();
+        saveSelection();
+        await insertImageFile(file);
+        return;
+      }
+    }
+  });
+
+  document.getElementById('knowAlignLeftBtn').addEventListener('click', () => { knowBodyEditor.focus(); restoreSelection(); document.execCommand('justifyLeft'); });
+  document.getElementById('knowAlignCenterBtn').addEventListener('click', () => { knowBodyEditor.focus(); restoreSelection(); document.execCommand('justifyCenter'); });
+  document.getElementById('knowAlignRightBtn').addEventListener('click', () => { knowBodyEditor.focus(); restoreSelection(); document.execCommand('justifyRight'); });
+
+  let selectedImage = null;
+  knowBodyEditor.addEventListener('click', (e) => {
+    if(selectedImage) selectedImage.classList.remove('selected');
+    if(e.target.tagName === 'IMG'){
+      selectedImage = e.target;
+      selectedImage.classList.add('selected');
+    } else {
+      selectedImage = null;
+    }
+  });
+  function alignImage(pos){
+    if(!selectedImage){ alert('정렬할 이미지를 먼저 클릭해서 선택해주세요.'); return; }
+    if(pos === 'left'){
+      selectedImage.style.float = 'left'; selectedImage.style.display = '';
+      selectedImage.style.margin = '4px 16px 8px 0'; selectedImage.style.maxWidth = '45%';
+    } else if(pos === 'right'){
+      selectedImage.style.float = 'right'; selectedImage.style.display = '';
+      selectedImage.style.margin = '4px 0 8px 16px'; selectedImage.style.maxWidth = '45%';
+    } else {
+      selectedImage.style.float = 'none'; selectedImage.style.display = 'block';
+      selectedImage.style.margin = '12px auto'; selectedImage.style.maxWidth = '100%';
+    }
+  }
+  document.getElementById('knowImgAlignLeftBtn').addEventListener('click', () => alignImage('left'));
+  document.getElementById('knowImgAlignCenterBtn').addEventListener('click', () => alignImage('center'));
+  document.getElementById('knowImgAlignRightBtn').addEventListener('click', () => alignImage('right'));
+
+  const knowCoverDropLabel = document.getElementById('knowCoverDropLabel');
+  const knowCoverPreview = document.getElementById('knowCoverPreview');
+  function setCoverFile(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return;
+    draftCoverFile = file;
+    knowCoverDropText.textContent = file.name;
+    knowCoverPreview.src = URL.createObjectURL(file);
+    knowCoverPreview.style.display = 'block';
+  }
+  knowCoverInput.addEventListener('change', () => {
+    const file = knowCoverInput.files[0];
+    if(file) setCoverFile(file);
+  });
+  knowCoverDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); knowCoverDropLabel.classList.add('drag-over'); });
+  knowCoverDropLabel.addEventListener('dragleave', () => knowCoverDropLabel.classList.remove('drag-over'));
+  knowCoverDropLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    knowCoverDropLabel.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) setCoverFile(file);
+  });
+
+  const knowPdfDropLabel = document.getElementById('knowPdfDropLabel');
+  function setPdfFile(file){
+    if(!file || file.type !== 'application/pdf') return;
+    draftPdfFile = file;
+    pdfRemoved = false;
+    knowPdfDropText.textContent = file.name;
+    knowPdfActions.style.display = 'flex';
+    knowPdfPreviewFrame.style.display = 'none';
+    knowPdfPreviewFrame.src = '';
+  }
+  knowPdfInput.addEventListener('change', () => {
+    const file = knowPdfInput.files[0];
+    if(file) setPdfFile(file);
+  });
+  knowPdfDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); knowPdfDropLabel.classList.add('drag-over'); });
+  knowPdfDropLabel.addEventListener('dragleave', () => knowPdfDropLabel.classList.remove('drag-over'));
+  knowPdfDropLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    knowPdfDropLabel.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) setPdfFile(file);
+  });
+
+  knowWriteOverlay.addEventListener('paste', (e) => {
+    if(knowBodyEditor.contains(e.target)) return;
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        setCoverFile(item.getAsFile());
+        return;
+      }
+      if(item.type === 'application/pdf'){
+        e.preventDefault();
+        setPdfFile(item.getAsFile());
+        return;
+      }
+    }
+  });
+
+  document.getElementById('knowPdfPreviewBtn').addEventListener('click', () => {
+    const url = draftPdfFile ? URL.createObjectURL(draftPdfFile) : existingPdfURL;
+    if(!url){ alert('먼저 PDF를 선택해주세요.'); return; }
+    knowPdfPreviewFrame.src = url;
+    knowPdfPreviewFrame.style.display = knowPdfPreviewFrame.style.display === 'none' ? 'block' : 'none';
+  });
+  document.getElementById('knowPdfRemoveBtn').addEventListener('click', () => {
+    draftPdfFile = null;
+    pdfRemoved = true;
+    knowPdfInput.value = '';
+    knowPdfDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    knowPdfActions.style.display = 'none';
+    knowPdfPreviewFrame.style.display = 'none';
+    knowPdfPreviewFrame.src = '';
+  });
+
+  knowWriteForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = knowTitleInput.value.trim();
+    let bodyHTML = knowBodyEditor.innerHTML.trim();
+    bodyHTML = bodyHTML.replace(/<script[\s\S]*?<\/script>/gi, '');
+    if(!title){ knowWriteMsg.textContent = '제목을 입력해주세요.'; knowWriteMsg.className = 'form-msg error'; return; }
+    if(!knowBodyEditor.textContent.trim() && !/<img/i.test(bodyHTML)){
+      knowWriteMsg.textContent = '본문을 입력해주세요.'; knowWriteMsg.className = 'form-msg error'; return;
+    }
+
+    knowSubmitBtn.disabled = true;
+    knowWriteMsg.textContent = '게시 중입니다...'; knowWriteMsg.className = 'form-msg';
+
+    try{
+      let coverURL = existingCoverURL, coverPath = existingCoverPath;
+      if(draftCoverFile){
+        coverPath = `knowledge/${draftId}/cover-${Date.now()}.${extOf(draftCoverFile)}`;
+        const res = await uploadWithProgress(coverPath, draftCoverFile);
+        if(existingCoverPath && existingCoverPath !== coverPath){
+          deleteObject(ref(storage, existingCoverPath)).catch(() => {});
+        }
+        coverURL = res.url;
+      } else if(!editingId){
+        coverURL = firstImageOf(bodyHTML);
+      }
+
+      let pdfURL = existingPdfURL, pdfPath = existingPdfPath, pdfName = existingPdfName;
+      if(draftPdfFile){
+        pdfPath = `knowledge/${draftId}/attachment-${Date.now()}.pdf`;
+        const res = await uploadWithProgress(pdfPath, draftPdfFile);
+        if(existingPdfPath && existingPdfPath !== pdfPath){
+          deleteObject(ref(storage, existingPdfPath)).catch(() => {});
+        }
+        pdfURL = res.url;
+        pdfName = draftPdfFile.name;
+      } else if(pdfRemoved){
+        if(existingPdfPath) deleteObject(ref(storage, existingPdfPath)).catch(() => {});
+        pdfURL = null; pdfPath = null; pdfName = null;
+      }
+
+      const payload = {
+        title, bodyHTML, coverURL, coverPath, pdfURL, pdfPath, pdfName,
+        bodyImagePaths: draftInsertedImagePaths,
+        authorEmail: auth.currentUser ? auth.currentUser.email : null
+      };
+
+      if(editingId){
+        payload.updatedAt = serverTimestamp();
+        await setDoc(doc(db, 'knowledge', editingId), payload, { merge: true });
+      } else {
+        payload.createdAt = serverTimestamp();
+        await setDoc(doc(db, 'knowledge', draftId), payload);
+      }
+
+      closeWrite();
+      await refreshKnow();
+    } catch(err){
+      knowWriteMsg.textContent = '게시 중 오류가 발생했습니다: ' + (err.message || '');
+      knowWriteMsg.className = 'form-msg error';
+    } finally {
+      knowSubmitBtn.disabled = false;
+      knowUploadProgress.style.display = 'none';
+      knowUploadProgressBar.style.width = '0%';
+    }
+  });
+
+  async function deletePost(post){
+    if(!confirm(`"${post.title}" 글을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    try{
+      const paths = [...(post.bodyImagePaths || [])];
+      if(post.coverPath) paths.push(post.coverPath);
+      if(post.pdfPath) paths.push(post.pdfPath);
+      await Promise.allSettled(paths.map(p => deleteObject(ref(storage, p))));
+      await deleteDoc(doc(db, 'knowledge', post.id));
+      await refreshKnow();
+    } catch(err){
+      alert('삭제 중 오류가 발생했습니다: ' + (err.message || ''));
+    }
+  }
+
+  knowLoadMoreBtn.addEventListener('click', renderMore);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(knowDetailOverlay.classList.contains('open')) closeDetail();
+    if(knowLoginOverlay.classList.contains('open')) closeLogin();
+    if(knowWriteOverlay.classList.contains('open')) closeWrite();
+  });
+
+  // 초기 목록 로딩은 onAuthStateChanged가 페이지 로드 시 한 번은 반드시 호출되므로 거기서 처리함
 </script>
 </body>
 </html>
