@@ -230,12 +230,13 @@ body{
   .hero h1 .accent{ color:#fff; }
   .hero-sub{ margin-top:22px; max-width:460px; color:rgba(255,255,255,0.82); font-size:16px; }
   .hero-cta{ display:flex; gap:14px; margin-top:36px; flex-wrap:wrap; }
+  .hero-counter-row{ display:flex; align-items:center; gap:16px; margin-top:22px; flex-wrap:wrap; }
   .hero-counter{
-    display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:9px 16px;
+    display:inline-flex; align-items:center; gap:8px; padding:9px 16px; min-width:216px;
     background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); border-radius:999px;
     font-size:13px; color:rgba(255,255,255,0.92); font-weight:600;
   }
-  .hero-counter strong{ color:#fff; font-weight:800; font-size:14.5px; }
+  .hero-counter strong{ color:#fff; font-weight:800; font-size:14.5px; font-variant-numeric:tabular-nums; }
   .hero-counter-dot{
     width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0;
     box-shadow:0 0 0 0 rgba(74,222,128,0.6); animation:heroCounterPulse 1.8s ease-out infinite;
@@ -245,7 +246,16 @@ body{
     70%{ box-shadow:0 0 0 7px rgba(74,222,128,0); }
     100%{ box-shadow:0 0 0 0 rgba(74,222,128,0); }
   }
-  @media (max-width:640px){ .hero-counter{ font-size:12px; padding:7px 13px; } }
+  .hero-partner-logos{
+    display:flex; align-items:center; background:#fff; border-radius:14px; padding:8px 12px;
+    box-shadow:0 6px 16px -8px rgba(0,0,0,0.35);
+  }
+  .hero-partner-logos img{ height:32px; width:auto; display:block; }
+  @media (max-width:640px){
+    .hero-counter{ font-size:12px; padding:7px 13px; min-width:180px; }
+    .hero-partner-logos{ padding:6px 9px; border-radius:11px; }
+    .hero-partner-logos img{ height:24px; }
+  }
   .hero .btn-outline{ background:#fff; border-color:#fff; color:var(--blue); }
   .hero .btn-outline:hover{ background:transparent; color:#fff; border-color:#fff; }
   .hero-photo{
@@ -881,16 +891,20 @@ body{
         <span class="hero-brand-mark">AZ</span>
         <span class="hero-brand-text">FINANCIAL SERVICE</span>
       </a>
-      <div class="hero-tag">AZ금융서비스 · Insurance Consulting</div>
       <h1>보험,<br>그 <span class="accent">이상</span>을 하다.</h1>
       <p class="hero-sub">AZ금융서비스 심준호 부지점장입니다. 팩트에 기반한 비교설계와 체계적인 사후관리로 고객님의 평생 보험 파트너가 되겠습니다.</p>
       <div class="hero-cta">
         <a href="#" id="btnKakaoHero" class="btn btn-kakao">카카오톡 상담</a>
         <a href="#service" class="btn btn-outline">자세히 보기</a>
       </div>
-      <div class="hero-counter reveal">
-        <span class="hero-counter-dot"></span>
-        누적 상담 건수 <strong id="heroConsultCount">0</strong>건
+      <div class="hero-counter-row reveal">
+        <div class="hero-counter">
+          <span class="hero-counter-dot"></span>
+          누적 상담 건수 <strong id="heroConsultCount">0</strong>건
+        </div>
+        <div class="hero-partner-logos">
+          <img src="https://lh3.googleusercontent.com/d/16rgQZ6tEcrY6-FB5pPUzQqPxeYe61elX" alt="banksalad, pay, B">
+        </div>
       </div>
     </div>
     <div class="hero-photo reveal">
