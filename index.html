@@ -928,8 +928,8 @@ body{
     </div>
     <div class="stat-row reveal-group">
       <div><div class="num" id="statsConsultCount">0</div><div class="lbl">누적 상담 건수</div></div>
-      <div><div class="num">11<small>년+</small></div><div class="lbl">보험 컨설팅 경력</div></div>
-      <div><div class="num">98<small>%</small></div><div class="lbl">재상담 만족도</div></div>
+      <div><div class="num"><span class="countup" data-countup="11">0</span><small>년+</small></div><div class="lbl">보험 컨설팅 경력</div></div>
+      <div><div class="num"><span class="countup" data-countup="98">0</span><small>%</small></div><div class="lbl">재상담 만족도</div></div>
     </div>
   </div>
   <a href="#growth" class="section-scroll-btn" aria-label="다음 섹션으로 이동">
@@ -1898,7 +1898,6 @@ body{
     const heroCounter = createLiveCounter(document.getElementById('heroConsultCount'));
     const statsCounter = createLiveCounter(document.getElementById('statsConsultCount'));
     const gbarCounter = createLiveCounter(document.getElementById('gbarLiveNum'), { suffix: '건' });
-    const timelineCounter = createLiveCounter(document.getElementById('timelineLiveNum'));
     const gbarLive = document.getElementById('gbarLive');
 
     // 실제 목표값이 오기 전, 대략적인 기준선(3,400)까지 0에서 미리 아주 천천히 올려둔다.
@@ -1908,7 +1907,6 @@ body{
     heroCounter.goTo(PRELIM_TARGET, 6000);
     statsCounter.goTo(PRELIM_TARGET, 6000);
     gbarCounter.goTo(PRELIM_TARGET, 6000);
-    timelineCounter.goTo(PRELIM_TARGET, 6000);
 
     if(!CONSULT_COUNTER_URL || CONSULT_COUNTER_URL.indexOf('YOUR_') === 0) return; // 아직 설정 전이면 여기서 멈춤 (예비 애니메이션만 재생)
 
@@ -1928,7 +1926,6 @@ body{
         heroCounter.goTo(count, 1500);
         statsCounter.goTo(count, 1500);
         gbarCounter.goTo(count, 1500);
-        timelineCounter.goTo(count, 1500);
         if(gbarLive) gbarLive.dataset.value = String(count);
       })
       .catch(err => console.error('상담 건수 카운터 연동 실패', err));
@@ -2017,6 +2014,39 @@ body{
       });
     }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
     items.forEach(el => io.observe(el));
+  })();
+
+  /* 숫자 카운트업: data-countup="목표값" 있는 요소는 화면에 들어오면 0에서 목표값까지 올라감 */
+  (function initCountUp(){
+    const els = document.querySelectorAll('[data-countup]');
+    if(!els.length) return;
+    function animate(el){
+      const target = parseInt(el.dataset.countup, 10);
+      if(isNaN(target)) return;
+      const duration = 1100;
+      let startTime = null;
+      function tick(now){
+        if(startTime === null) startTime = now;
+        const p = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(eased * target).toLocaleString('ko-KR');
+        if(p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+    if(!('IntersectionObserver' in window)){
+      els.forEach(el => { el.textContent = el.dataset.countup; });
+      return;
+    }
+    const io2 = new IntersectionObserver((entries)=>{
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          animate(entry.target);
+          io2.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    els.forEach(el => io2.observe(el));
   })();
 
   /* 청구사례 슬라이더: 드래그/화살표로 좌우 이동 */
@@ -2770,12 +2800,17 @@ body{
 
   function renderMore(){
     const next = allPosts.slice(shownCount, shownCount + PAGE_SIZE);
-    next.forEach(post => issuesGrid.appendChild(renderCard(post)));
+    const cards = next.map(post => { const c = renderCard(post); issuesGrid.appendChild(c); return c; });
     shownCount += next.length;
 
     issuesEmpty.style.display = allPosts.length === 0 ? 'block' : 'none';
     issuesCount.textContent = allPosts.length ? `전체 ${allPosts.length}건` : '';
     issuesLoadMoreBtn.style.display = shownCount < allPosts.length ? 'block' : 'none';
+
+    // 새로 그려진 카드들이 하나씩 순서대로 아래에서 살짝 올라오며 나타나도록
+    requestAnimationFrame(() => {
+      cards.forEach((c, i) => setTimeout(() => c.classList.add('in-view'), i * 60));
+    });
   }
 
   function renderCard(post){
@@ -2808,7 +2843,6 @@ body{
       delBtn.addEventListener('click', (e) => { e.stopPropagation(); deletePost(post); });
       card.appendChild(delBtn);
     }
-    card.classList.add('in-view');
     return card;
   }
 
@@ -3391,12 +3425,17 @@ body{
 
   function renderMore(){
     const next = allKnow.slice(shownCount, shownCount + PAGE_SIZE);
-    next.forEach(post => knowGrid.appendChild(renderCard(post)));
+    const cards = next.map(post => { const c = renderCard(post); knowGrid.appendChild(c); return c; });
     shownCount += next.length;
 
     knowEmpty.style.display = allKnow.length === 0 ? 'block' : 'none';
     knowCount.textContent = allKnow.length ? `전체 ${allKnow.length}건` : '';
     knowLoadMoreBtn.style.display = shownCount < allKnow.length ? 'block' : 'none';
+
+    // 새로 그려진 카드들이 하나씩 순서대로 아래에서 살짝 올라오며 나타나도록
+    requestAnimationFrame(() => {
+      cards.forEach((c, i) => setTimeout(() => c.classList.add('in-view'), i * 60));
+    });
   }
 
   function renderCard(post){
@@ -3429,7 +3468,6 @@ body{
       delBtn.addEventListener('click', (e) => { e.stopPropagation(); deletePost(post); });
       card.appendChild(delBtn);
     }
-    card.classList.add('in-view');
     return card;
   }
 
