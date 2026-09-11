@@ -811,6 +811,13 @@ body{
   }
   .form-drop:hover{ border-color:var(--blue); color:var(--blue); }
   .form-drop.drag-over{ border-color:var(--blue); background:#eef4ff; color:var(--blue); }
+  .claim-preview-strip{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .claim-preview-item{ position:relative; width:64px; height:64px; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+  .claim-preview-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .claim-preview-item button{
+    position:absolute; top:2px; right:2px; width:18px; height:18px; border:none; border-radius:50%;
+    background:rgba(16,21,43,0.78); color:#fff; font-size:11px; line-height:1; cursor:pointer;
+  }
   .form-drop input{ display:none; }
   .form-msg{ font-size:12.5px; margin-top:10px; }
   .form-msg.error{ color:#d3423e; }
@@ -1103,15 +1110,15 @@ body{
     <div class="privacy-modal-body">
       <form id="claimWriteForm">
         <div class="form-row">
-          <label for="claimImageInput">이미지</label>
+          <label for="claimImageInput">이미지 (여러 장 한 번에 선택 가능)</label>
           <label class="form-drop" id="claimImageDropLabel" for="claimImageInput" tabindex="0">
-            <span id="claimImageDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
-            <input type="file" id="claimImageInput" accept="image/*">
+            <span id="claimImageDropText">클릭해서 여러 장 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
+            <input type="file" id="claimImageInput" accept="image/*" multiple>
           </label>
-          <img id="claimImagePreview" style="display:none; max-height:160px; border-radius:8px; margin-top:8px;" alt="미리보기">
+          <div id="claimImagePreviewStrip" class="claim-preview-strip"></div>
         </div>
         <div class="form-row">
-          <label for="claimCaptionInput">설명 (선택)</label>
+          <label for="claimCaptionInput">설명 (선택 · 여러 장 등록 시 전부 같은 설명이 붙어요)</label>
           <input type="text" id="claimCaptionInput" placeholder="예: 가족愛Dream보험 진단금 4천만원">
         </div>
         <div class="form-progress" id="claimUploadProgress"><div class="bar" id="claimUploadProgressBar"></div></div>
@@ -4091,7 +4098,7 @@ body{
 
   let allClaims = [];
   let isAdmin = false;
-  let draftImageFile = null;
+  let draftImageFiles = [];
 
   const claimSlider = document.getElementById('claimSlider');
   const claimCount = document.getElementById('claimCount');
@@ -4111,7 +4118,7 @@ body{
   const claimImageInput = document.getElementById('claimImageInput');
   const claimImageDropLabel = document.getElementById('claimImageDropLabel');
   const claimImageDropText = document.getElementById('claimImageDropText');
-  const claimImagePreview = document.getElementById('claimImagePreview');
+  const claimImagePreviewStrip = document.getElementById('claimImagePreviewStrip');
   const claimCaptionInput = document.getElementById('claimCaptionInput');
   const claimUploadProgress = document.getElementById('claimUploadProgress');
   const claimUploadProgressBar = document.getElementById('claimUploadProgressBar');
@@ -4225,16 +4232,15 @@ body{
     }
   });
 
-  /* ---- 사진 추가 ---- */
+  /* ---- 사진 추가 (여러 장 한 번에) ---- */
   function openWrite(){
     claimWriteForm.reset();
-    claimImageDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
-    claimImagePreview.style.display = 'none';
-    claimImagePreview.src = '';
+    claimImageDropText.textContent = '클릭해서 여러 장 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
     claimWriteMsg.textContent = ''; claimWriteMsg.className = 'form-msg';
     claimUploadProgress.style.display = 'none';
     claimUploadProgressBar.style.width = '0%';
-    draftImageFile = null;
+    draftImageFiles = [];
+    renderImagePreviewStrip();
     claimWriteOverlay.classList.add('open');
     lockScroll();
   }
@@ -4242,35 +4248,54 @@ body{
   claimWriteBtn.addEventListener('click', openWrite);
   document.getElementById('claimWriteCloseBtn').addEventListener('click', closeWrite);
 
-  function setImageFile(file){
-    if(!file || !file.type || !file.type.startsWith('image/')) return;
-    draftImageFile = file;
-    claimImageDropText.textContent = file.name;
-    claimImagePreview.src = URL.createObjectURL(file);
-    claimImagePreview.style.display = 'block';
+  function renderImagePreviewStrip(){
+    claimImagePreviewStrip.innerHTML = '';
+    draftImageFiles.forEach((file, i) => {
+      const item = document.createElement('div');
+      item.className = 'claim-preview-item';
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      item.appendChild(img);
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.textContent = '×';
+      rm.addEventListener('click', () => {
+        draftImageFiles.splice(i, 1);
+        renderImagePreviewStrip();
+      });
+      item.appendChild(rm);
+      claimImagePreviewStrip.appendChild(item);
+    });
+    claimImageDropText.textContent = draftImageFiles.length
+      ? `${draftImageFiles.length}장 선택됨 (더 추가하려면 다시 클릭/드래그)`
+      : '클릭해서 여러 장 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+  }
+
+  function addImageFiles(fileList){
+    Array.from(fileList || []).forEach(file => {
+      if(file && file.type && file.type.startsWith('image/')) draftImageFiles.push(file);
+    });
+    renderImagePreviewStrip();
   }
   claimImageInput.addEventListener('change', () => {
-    const file = claimImageInput.files[0];
-    if(file) setImageFile(file);
+    addImageFiles(claimImageInput.files);
+    claimImageInput.value = '';
   });
   claimImageDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); claimImageDropLabel.classList.add('drag-over'); });
   claimImageDropLabel.addEventListener('dragleave', () => claimImageDropLabel.classList.remove('drag-over'));
   claimImageDropLabel.addEventListener('drop', (e) => {
     e.preventDefault();
     claimImageDropLabel.classList.remove('drag-over');
-    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if(file) setImageFile(file);
+    addImageFiles(e.dataTransfer && e.dataTransfer.files);
   });
   claimWriteOverlay.addEventListener('paste', (e) => {
     const items = e.clipboardData && e.clipboardData.items;
     if(!items) return;
+    const files = [];
     for(const item of items){
-      if(item.type && item.type.startsWith('image/')){
-        e.preventDefault();
-        setImageFile(item.getAsFile());
-        return;
-      }
+      if(item.type && item.type.startsWith('image/')) files.push(item.getAsFile());
     }
+    if(files.length){ e.preventDefault(); addImageFiles(files); }
   });
 
   function extOf(file){
@@ -4280,41 +4305,53 @@ body{
 
   claimWriteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if(!draftImageFile){ claimWriteMsg.textContent = '이미지를 선택해주세요.'; claimWriteMsg.className = 'form-msg error'; return; }
+    if(!draftImageFiles.length){ claimWriteMsg.textContent = '이미지를 선택해주세요.'; claimWriteMsg.className = 'form-msg error'; return; }
 
     claimSubmitBtn.disabled = true;
-    claimWriteMsg.textContent = '업로드 중입니다...'; claimWriteMsg.className = 'form-msg';
+    const total = draftImageFiles.length;
+    const caption = claimCaptionInput.value.trim() || null;
+    claimUploadProgress.style.display = 'block';
+    let successCount = 0;
 
-    try{
-      const docRef = doc(collection(db, 'claims'));
-      const path = `claims/${docRef.id}/image-${Date.now()}.${extOf(draftImageFile)}`;
-      const sref = ref(storage, path);
-      const task = uploadBytesResumable(sref, draftImageFile);
-      claimUploadProgress.style.display = 'block';
-      await new Promise((resolve, reject) => {
-        task.on('state_changed', (snap) => {
-          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-          claimUploadProgressBar.style.width = pct + '%';
-        }, reject, resolve);
-      });
-      const url = await getDownloadURL(task.snapshot.ref);
-
-      await setDoc(docRef, {
-        imageURL: url, imagePath: path,
-        caption: claimCaptionInput.value.trim() || null,
-        createdAt: serverTimestamp()
-      });
-
-      closeWrite();
-      await refreshClaims();
-    } catch(err){
-      claimWriteMsg.textContent = '등록 중 오류가 발생했습니다: ' + (err.message || '');
-      claimWriteMsg.className = 'form-msg error';
-    } finally {
-      claimSubmitBtn.disabled = false;
-      claimUploadProgress.style.display = 'none';
+    for(let i = 0; i < total; i++){
+      const file = draftImageFiles[i];
+      claimWriteMsg.textContent = `업로드 중입니다... (${i + 1}/${total})`; claimWriteMsg.className = 'form-msg';
       claimUploadProgressBar.style.width = '0%';
+      try{
+        const docRef = doc(collection(db, 'claims'));
+        const path = `claims/${docRef.id}/image-${Date.now()}-${i}.${extOf(file)}`;
+        const sref = ref(storage, path);
+        const task = uploadBytesResumable(sref, file);
+        await new Promise((resolve, reject) => {
+          task.on('state_changed', (snap) => {
+            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+            claimUploadProgressBar.style.width = pct + '%';
+          }, reject, resolve);
+        });
+        const url = await getDownloadURL(task.snapshot.ref);
+        await setDoc(docRef, { imageURL: url, imagePath: path, caption, createdAt: serverTimestamp() });
+        successCount++;
+      } catch(err){
+        console.error(`이미지 ${i + 1} 업로드 실패`, err);
+      }
     }
+
+    claimSubmitBtn.disabled = false;
+    claimUploadProgress.style.display = 'none';
+    claimUploadProgressBar.style.width = '0%';
+
+    if(successCount === total){
+      closeWrite();
+    } else if(successCount > 0){
+      claimWriteMsg.textContent = `${successCount}/${total}장 등록 완료 (일부 실패, 실패한 사진만 다시 선택해서 재시도해주세요)`;
+      claimWriteMsg.className = 'form-msg error';
+      draftImageFiles = [];
+      renderImagePreviewStrip();
+    } else {
+      claimWriteMsg.textContent = '등록 중 오류가 발생했습니다. 다시 시도해주세요.';
+      claimWriteMsg.className = 'form-msg error';
+    }
+    await refreshClaims();
   });
 
   document.addEventListener('keydown', (e) => {
