@@ -4208,7 +4208,7 @@ body{
     isAdmin = !!user;
     claimAdminBar.classList.toggle('on', isAdmin);
     claimAdminBtn.style.display = isAdmin ? 'none' : 'inline-flex';
-    renderClaims();
+    refreshClaims();
   });
 
   /* ---- 기존 이미지 30개 한 번에 불러오기(마이그레이션) ---- */
