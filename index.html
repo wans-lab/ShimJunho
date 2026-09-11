@@ -360,14 +360,23 @@ body{
   }
   .claim-slider::-webkit-scrollbar{ display:none; }
   .claim-slider.dragging{ cursor:grabbing; scroll-snap-type:none; }
-  .claim-slider img{
-    height:clamp(200px, 40vh, 440px); width:auto; max-width:none; flex:0 0 auto;
+  .claim-item{
+    position:relative; flex:0 0 auto; scroll-snap-align:start;
+    height:clamp(200px, 40vh, 440px);
+  }
+  .claim-item img{
+    height:100%; width:auto; max-width:none; display:block;
     border-radius:14px; border:1px solid var(--line);
     box-shadow:0 16px 34px -18px rgba(16,21,43,0.28);
-    background:#fff; scroll-snap-align:start;
-    cursor:zoom-in; transition:transform .2s ease;
+    background:#fff; cursor:zoom-in; transition:transform .2s ease;
   }
-  .claim-slider img:hover{ transform:translateY(-3px); }
+  .claim-item:hover img{ transform:translateY(-3px); }
+  .claim-del-btn{
+    position:absolute; top:8px; right:8px; z-index:2; border:none; background:rgba(16,21,43,0.78);
+    color:#fff; font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px; cursor:pointer;
+  }
+  .claim-del-btn:hover{ background:#d3423e; }
+  .claim-empty{ text-align:center; color:var(--muted); font-size:14px; padding:40px 0; width:100%; }
 
   /* -------- Claim lightbox -------- */
   .claim-lightbox{
@@ -407,12 +416,12 @@ body{
   .claim-arrow-left{ left:-4px; }
   .claim-arrow-right{ right:-4px; }
   @media (max-width:900px){
-    .claim-slider img{ height:320px; }
+    .claim-item{ height:320px; }
     .claim-arrow{ display:none; }
     .claim-slider-wrap::before, .claim-slider-wrap::after{ width:36px; }
   }
   @media (max-width:520px){
-    .claim-slider img{ height:230px; }
+    .claim-item{ height:230px; }
   }
   .partner-note{ text-align:center; font-size:11.5px; color:var(--muted-dim); }
   @media (max-width:640px){ .partner-grid{ grid-template-columns:repeat(2,1fr); } }
@@ -1029,41 +1038,19 @@ body{
       <p>실제 보험 청구 사례</p>
     </div>
 
+    <div class="issues-toolbar reveal">
+      <span class="issues-count" id="claimCount"></span>
+      <div class="issues-adminbar" id="claimAdminBar">
+        <button type="button" class="btn btn-outline btn-sm" id="claimMigrateBtn" style="display:none;">기존 이미지 30개 불러오기</button>
+        <button type="button" class="btn btn-blue btn-sm" id="claimWriteBtn">사진 추가</button>
+        <button type="button" class="btn btn-outline btn-sm" id="claimLogoutBtn">로그아웃</button>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="claimAdminBtn">관리자</button>
+    </div>
+
     <div class="claim-slider-wrap reveal">
       <button type="button" class="claim-arrow claim-arrow-left" id="claimPrev" aria-label="이전 이미지">‹</button>
-      <div class="claim-slider" id="claimSlider">
-
-        <img src="https://lh3.googleusercontent.com/d/1n8Z840ohGosMWWiSV0ecV_EY_mEX2cHi" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1dBoZpdABcR_-aRLgWGihAKNXmKf_ZtnL" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/102NnJO8RV2uYh9Olw9G33NBJTT2x_eko" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1XkNaU5CV_HBDB13n3xambO2YTXlh6zGT" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1HBr9tsDsrqbQe4ZqudIz6HPg0zSwa4pi" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1hd3BtBwmOwqbTCBEEao_wdne9M6iMmU8" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1QcUBv2EaMyvfYa8KQijOvfYvlBjfqLh0" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1FHjM-f4LLEEDh2ssjpDoRbtYbbznjYrc" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1Bn73V5c4im7KaWshvUM0dmMEbM8TqtxY" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1-SJyCbPtxuTmdrQx22IPmpt0UlUEfUux" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1e3zqMndrfkWSavWSfBmOZm3rBwlezlFp" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1VlwgZGVvAaI6UF0sku89KvF-nsl-NhkZ" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1FFX_QiB1MBABdFvWIjFY5DcZjM99H5n3" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1oaAvrwALqsrbb3NRRhquLSdxBydFlDKp" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1Z6CYSJuaBWtPm3frE7g-HVe7b4ZQyL2t" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1wQDvcJcUsETyFfjMU0CEGx4s1PYXUl7f" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1XhudtjUrqQNBwQ-P_EGrdLLiBWRJmwsH" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1jCOGuHSkMOJQ0IuEBSV2pk7tLmwId8Nh" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1TdIsFfpOkLQfqklgcBGx9xloFI6D899t" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1rdsue_32y90gOPRzL92wdJOUagfJd3Ku" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1ow3RprPh95HZKY8gP7CX5jVSlZYvWZ7_" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1r7dv6psCCY4CtiLVfrDToxSN32yhlDIP" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1cPvNGQCTtvY2DTQHYrP9TSdSHUEpRDcU" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1j6TIiTvZ5FKGwtE7WDCAg2DIWgsqPhUV" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1DKQO1RSBcdCW4k5TozFx-3kYD3QCCP_i" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1zaTyttfp_ebrk_Ig6Nlmr6tW2mKaI6eD" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/16p12NWLRkoEru7G3M5tYxkSpqlCYYXiT" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/12ha_075K6CDfDY3pUkryvAFzZmg7CY2u" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/1LiCQgriO_eIp8Bo2_Q6NX61-w7hCoVo6" loading="lazy" alt="청구사례" draggable="false">
-        <img src="https://lh3.googleusercontent.com/d/12zAA2N-_LxZ2HgJ_qX3FxNGTO_ux43ev" loading="lazy" alt="청구사례" draggable="false">
-      </div>
+      <div class="claim-slider" id="claimSlider"></div>
       <button type="button" class="claim-arrow claim-arrow-right" id="claimNext" aria-label="다음 이미지">›</button>
     </div>
   </div>
@@ -1071,6 +1058,59 @@ body{
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
   </a>
 </section>
+
+<!-- 청구사례 관리자 로그인 -->
+<div class="privacy-overlay" id="claimLoginOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>관리자 로그인</h3>
+      <button type="button" class="privacy-modal-close" id="claimLoginCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="claimLoginForm">
+        <div class="form-row">
+          <label for="claimLoginEmail">이메일</label>
+          <input type="email" id="claimLoginEmail" required autocomplete="username">
+        </div>
+        <div class="form-row">
+          <label for="claimLoginPassword">비밀번호</label>
+          <input type="password" id="claimLoginPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-blue" style="width:100%;">로그인</button>
+      </form>
+      <p class="form-msg" id="claimLoginMsg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 청구사례 사진 추가 -->
+<div class="privacy-overlay" id="claimWriteOverlay">
+  <div class="privacy-modal modal-sm" role="dialog" aria-modal="true">
+    <div class="privacy-modal-header">
+      <h3>청구사례 사진 추가</h3>
+      <button type="button" class="privacy-modal-close" id="claimWriteCloseBtn" aria-label="닫기">×</button>
+    </div>
+    <div class="privacy-modal-body">
+      <form id="claimWriteForm">
+        <div class="form-row">
+          <label for="claimImageInput">이미지</label>
+          <label class="form-drop" id="claimImageDropLabel" for="claimImageInput" tabindex="0">
+            <span id="claimImageDropText">클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기</span>
+            <input type="file" id="claimImageInput" accept="image/*">
+          </label>
+          <img id="claimImagePreview" style="display:none; max-height:160px; border-radius:8px; margin-top:8px;" alt="미리보기">
+        </div>
+        <div class="form-row">
+          <label for="claimCaptionInput">설명 (선택)</label>
+          <input type="text" id="claimCaptionInput" placeholder="예: 가족愛Dream보험 진단금 4천만원">
+        </div>
+        <div class="form-progress" id="claimUploadProgress"><div class="bar" id="claimUploadProgressBar"></div></div>
+        <button type="submit" class="btn btn-blue" style="width:100%; margin-top:6px;" id="claimSubmitBtn">등록하기</button>
+      </form>
+      <p class="form-msg" id="claimWriteMsg"></p>
+    </div>
+  </div>
+</div>
 
 
 <!-- PARTNER -->
@@ -3976,6 +4016,302 @@ body{
   });
 
   // 초기 목록 로딩은 onAuthStateChanged가 페이지 로드 시 한 번은 반드시 호출되므로 거기서 처리함
+</script>
+
+<!-- 청구사례: 이슈/기초상식과 동일한 Firebase(Firestore + Storage + Auth) 사용, 별도 컬렉션(claims) -->
+<script type="module">
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp, writeBatch
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-storage.js";
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA_xLaF-zfI-aIidRxcJuflNzYEU9zFdtU",
+    authDomain: "simjunho-insurance.firebaseapp.com",
+    projectId: "simjunho-insurance",
+    storageBucket: "simjunho-insurance.firebasestorage.app",
+    messagingSenderId: "579184940244",
+    appId: "1:579184940244:web:f7585fc0daeb9741b41741"
+  };
+
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const db = getFirestore(app, "shimfinancial-blog");
+  const storage = getStorage(app);
+  const auth = getAuth(app);
+
+  // 기존에 구글 드라이브로 올려두셨던 청구사례 이미지 — "기존 이미지 불러오기" 버튼으로 한 번에 Firestore에 등록(마이그레이션)할 때 사용
+  const LEGACY_CLAIM_URLS = [
+    "https://lh3.googleusercontent.com/d/1n8Z840ohGosMWWiSV0ecV_EY_mEX2cHi",
+    "https://lh3.googleusercontent.com/d/1dBoZpdABcR_-aRLgWGihAKNXmKf_ZtnL",
+    "https://lh3.googleusercontent.com/d/102NnJO8RV2uYh9Olw9G33NBJTT2x_eko",
+    "https://lh3.googleusercontent.com/d/1XkNaU5CV_HBDB13n3xambO2YTXlh6zGT",
+    "https://lh3.googleusercontent.com/d/1HBr9tsDsrqbQe4ZqudIz6HPg0zSwa4pi",
+    "https://lh3.googleusercontent.com/d/1hd3BtBwmOwqbTCBEEao_wdne9M6iMmU8",
+    "https://lh3.googleusercontent.com/d/1QcUBv2EaMyvfYa8KQijOvfYvlBjfqLh0",
+    "https://lh3.googleusercontent.com/d/1FHjM-f4LLEEDh2ssjpDoRbtYbbznjYrc",
+    "https://lh3.googleusercontent.com/d/1Bn73V5c4im7KaWshvUM0dmMEbM8TqtxY",
+    "https://lh3.googleusercontent.com/d/1-SJyCbPtxuTmdrQx22IPmpt0UlUEfUux",
+    "https://lh3.googleusercontent.com/d/1e3zqMndrfkWSavWSfBmOZm3rBwlezlFp",
+    "https://lh3.googleusercontent.com/d/1VlwgZGVvAaI6UF0sku89KvF-nsl-NhkZ",
+    "https://lh3.googleusercontent.com/d/1FFX_QiB1MBABdFvWIjFY5DcZjM99H5n3",
+    "https://lh3.googleusercontent.com/d/1oaAvrwALqsrbb3NRRhquLSdxBydFlDKp",
+    "https://lh3.googleusercontent.com/d/1Z6CYSJuaBWtPm3frE7g-HVe7b4ZQyL2t",
+    "https://lh3.googleusercontent.com/d/1wQDvcJcUsETyFfjMU0CEGx4s1PYXUl7f",
+    "https://lh3.googleusercontent.com/d/1XhudtjUrqQNBwQ-P_EGrdLLiBWRJmwsH",
+    "https://lh3.googleusercontent.com/d/1jCOGuHSkMOJQ0IuEBSV2pk7tLmwId8Nh",
+    "https://lh3.googleusercontent.com/d/1TdIsFfpOkLQfqklgcBGx9xloFI6D899t",
+    "https://lh3.googleusercontent.com/d/1rdsue_32y90gOPRzL92wdJOUagfJd3Ku",
+    "https://lh3.googleusercontent.com/d/1ow3RprPh95HZKY8gP7CX5jVSlZYvWZ7_",
+    "https://lh3.googleusercontent.com/d/1r7dv6psCCY4CtiLVfrDToxSN32yhlDIP",
+    "https://lh3.googleusercontent.com/d/1cPvNGQCTtvY2DTQHYrP9TSdSHUEpRDcU",
+    "https://lh3.googleusercontent.com/d/1j6TIiTvZ5FKGwtE7WDCAg2DIWgsqPhUV",
+    "https://lh3.googleusercontent.com/d/1DKQO1RSBcdCW4k5TozFx-3kYD3QCCP_i",
+    "https://lh3.googleusercontent.com/d/1zaTyttfp_ebrk_Ig6Nlmr6tW2mKaI6eD",
+    "https://lh3.googleusercontent.com/d/16p12NWLRkoEru7G3M5tYxkSpqlCYYXiT",
+    "https://lh3.googleusercontent.com/d/12ha_075K6CDfDY3pUkryvAFzZmg7CY2u",
+    "https://lh3.googleusercontent.com/d/1LiCQgriO_eIp8Bo2_Q6NX61-w7hCoVo6",
+    "https://lh3.googleusercontent.com/d/12zAA2N-_LxZ2HgJ_qX3FxNGTO_ux43ev"
+  ];
+
+  let allClaims = [];
+  let isAdmin = false;
+  let draftImageFile = null;
+
+  const claimSlider = document.getElementById('claimSlider');
+  const claimCount = document.getElementById('claimCount');
+  const claimAdminBar = document.getElementById('claimAdminBar');
+  const claimAdminBtn = document.getElementById('claimAdminBtn');
+  const claimWriteBtn = document.getElementById('claimWriteBtn');
+  const claimLogoutBtn = document.getElementById('claimLogoutBtn');
+  const claimMigrateBtn = document.getElementById('claimMigrateBtn');
+
+  const claimLoginOverlay = document.getElementById('claimLoginOverlay');
+  const claimLoginForm = document.getElementById('claimLoginForm');
+  const claimLoginMsg = document.getElementById('claimLoginMsg');
+
+  const claimWriteOverlay = document.getElementById('claimWriteOverlay');
+  const claimWriteForm = document.getElementById('claimWriteForm');
+  const claimWriteMsg = document.getElementById('claimWriteMsg');
+  const claimImageInput = document.getElementById('claimImageInput');
+  const claimImageDropLabel = document.getElementById('claimImageDropLabel');
+  const claimImageDropText = document.getElementById('claimImageDropText');
+  const claimImagePreview = document.getElementById('claimImagePreview');
+  const claimCaptionInput = document.getElementById('claimCaptionInput');
+  const claimUploadProgress = document.getElementById('claimUploadProgress');
+  const claimUploadProgressBar = document.getElementById('claimUploadProgressBar');
+  const claimSubmitBtn = document.getElementById('claimSubmitBtn');
+
+  function lockScroll(){ document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; }
+  function unlockScroll(){ document.documentElement.style.overflow = ''; document.body.style.overflow = ''; }
+
+  let refreshToken = 0;
+  async function refreshClaims(){
+    const myToken = ++refreshToken;
+    let docs = [];
+    try{
+      const q = query(collection(db, 'claims'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(err){
+      console.error(err);
+      docs = [];
+    }
+    if(myToken !== refreshToken) return;
+    allClaims = docs;
+    renderClaims();
+  }
+
+  function renderClaims(){
+    claimSlider.innerHTML = '';
+    if(allClaims.length === 0){
+      claimSlider.innerHTML = '<p class="claim-empty">등록된 청구사례가 없습니다.</p>';
+    } else {
+      allClaims.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'claim-item';
+        el.innerHTML = `<img src="${item.imageURL}" loading="lazy" alt="${(item.caption || '청구사례').replace(/"/g,'&quot;')}" draggable="false">`;
+        if(isAdmin){
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'claim-del-btn';
+          delBtn.textContent = '삭제';
+          delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteClaim(item); });
+          el.appendChild(delBtn);
+        }
+        claimSlider.appendChild(el);
+      });
+    }
+    claimCount.textContent = allClaims.length ? `전체 ${allClaims.length}건` : '';
+    claimMigrateBtn.style.display = (isAdmin && allClaims.length === 0) ? 'inline-flex' : 'none';
+  }
+
+  async function deleteClaim(item){
+    if(!confirm('이 청구사례 이미지를 삭제할까요? 되돌릴 수 없습니다.')) return;
+    try{
+      if(item.imagePath) await deleteObject(ref(storage, item.imagePath)).catch(() => {});
+      await deleteDoc(doc(db, 'claims', item.id));
+      await refreshClaims();
+    } catch(err){
+      alert('삭제 중 오류가 발생했습니다: ' + (err.message || ''));
+    }
+  }
+
+  /* ---- 관리자 로그인 (다른 섹션과 같은 Firebase Auth 공유) ---- */
+  function openLogin(){
+    claimLoginMsg.textContent = ''; claimLoginMsg.className = 'form-msg';
+    claimLoginOverlay.classList.add('open'); lockScroll();
+  }
+  function closeLogin(){ claimLoginOverlay.classList.remove('open'); unlockScroll(); }
+  claimAdminBtn.addEventListener('click', openLogin);
+  document.getElementById('claimLoginCloseBtn').addEventListener('click', closeLogin);
+
+  claimLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('claimLoginEmail').value.trim();
+    const pw = document.getElementById('claimLoginPassword').value;
+    claimLoginMsg.textContent = '로그인 중...'; claimLoginMsg.className = 'form-msg';
+    try{
+      await signInWithEmailAndPassword(auth, email, pw);
+      claimLoginForm.reset();
+      closeLogin();
+    } catch(err){
+      claimLoginMsg.textContent = '로그인에 실패했습니다. 이메일/비밀번호를 확인해주세요.';
+      claimLoginMsg.className = 'form-msg error';
+    }
+  });
+  claimLogoutBtn.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    isAdmin = !!user;
+    claimAdminBar.classList.toggle('on', isAdmin);
+    claimAdminBtn.style.display = isAdmin ? 'none' : 'inline-flex';
+    renderClaims();
+  });
+
+  /* ---- 기존 이미지 30개 한 번에 불러오기(마이그레이션) ---- */
+  claimMigrateBtn.addEventListener('click', async () => {
+    if(!confirm(`기존 이미지 ${LEGACY_CLAIM_URLS.length}개를 그대로 등록할까요?`)) return;
+    claimMigrateBtn.disabled = true;
+    claimMigrateBtn.textContent = '불러오는 중...';
+    try{
+      const batch = writeBatch(db);
+      LEGACY_CLAIM_URLS.forEach(url => {
+        const docRef = doc(collection(db, 'claims'));
+        batch.set(docRef, { imageURL: url, imagePath: null, caption: null, createdAt: serverTimestamp() });
+      });
+      await batch.commit();
+      await refreshClaims();
+    } catch(err){
+      alert('불러오기 중 오류가 발생했습니다: ' + (err.message || ''));
+    } finally {
+      claimMigrateBtn.disabled = false;
+      claimMigrateBtn.textContent = '기존 이미지 30개 불러오기';
+    }
+  });
+
+  /* ---- 사진 추가 ---- */
+  function openWrite(){
+    claimWriteForm.reset();
+    claimImageDropText.textContent = '클릭해서 선택 / 끌어다 놓기 / 여기서 Ctrl+V 붙여넣기';
+    claimImagePreview.style.display = 'none';
+    claimImagePreview.src = '';
+    claimWriteMsg.textContent = ''; claimWriteMsg.className = 'form-msg';
+    claimUploadProgress.style.display = 'none';
+    claimUploadProgressBar.style.width = '0%';
+    draftImageFile = null;
+    claimWriteOverlay.classList.add('open');
+    lockScroll();
+  }
+  function closeWrite(){ claimWriteOverlay.classList.remove('open'); unlockScroll(); }
+  claimWriteBtn.addEventListener('click', openWrite);
+  document.getElementById('claimWriteCloseBtn').addEventListener('click', closeWrite);
+
+  function setImageFile(file){
+    if(!file || !file.type || !file.type.startsWith('image/')) return;
+    draftImageFile = file;
+    claimImageDropText.textContent = file.name;
+    claimImagePreview.src = URL.createObjectURL(file);
+    claimImagePreview.style.display = 'block';
+  }
+  claimImageInput.addEventListener('change', () => {
+    const file = claimImageInput.files[0];
+    if(file) setImageFile(file);
+  });
+  claimImageDropLabel.addEventListener('dragover', (e) => { e.preventDefault(); claimImageDropLabel.classList.add('drag-over'); });
+  claimImageDropLabel.addEventListener('dragleave', () => claimImageDropLabel.classList.remove('drag-over'));
+  claimImageDropLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    claimImageDropLabel.classList.remove('drag-over');
+    const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file) setImageFile(file);
+  });
+  claimWriteOverlay.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    for(const item of items){
+      if(item.type && item.type.startsWith('image/')){
+        e.preventDefault();
+        setImageFile(item.getAsFile());
+        return;
+      }
+    }
+  });
+
+  function extOf(file){
+    const parts = file.name.split('.');
+    return parts.length > 1 ? parts.pop() : 'dat';
+  }
+
+  claimWriteForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!draftImageFile){ claimWriteMsg.textContent = '이미지를 선택해주세요.'; claimWriteMsg.className = 'form-msg error'; return; }
+
+    claimSubmitBtn.disabled = true;
+    claimWriteMsg.textContent = '업로드 중입니다...'; claimWriteMsg.className = 'form-msg';
+
+    try{
+      const docRef = doc(collection(db, 'claims'));
+      const path = `claims/${docRef.id}/image-${Date.now()}.${extOf(draftImageFile)}`;
+      const sref = ref(storage, path);
+      const task = uploadBytesResumable(sref, draftImageFile);
+      claimUploadProgress.style.display = 'block';
+      await new Promise((resolve, reject) => {
+        task.on('state_changed', (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          claimUploadProgressBar.style.width = pct + '%';
+        }, reject, resolve);
+      });
+      const url = await getDownloadURL(task.snapshot.ref);
+
+      await setDoc(docRef, {
+        imageURL: url, imagePath: path,
+        caption: claimCaptionInput.value.trim() || null,
+        createdAt: serverTimestamp()
+      });
+
+      closeWrite();
+      await refreshClaims();
+    } catch(err){
+      claimWriteMsg.textContent = '등록 중 오류가 발생했습니다: ' + (err.message || '');
+      claimWriteMsg.className = 'form-msg error';
+    } finally {
+      claimSubmitBtn.disabled = false;
+      claimUploadProgress.style.display = 'none';
+      claimUploadProgressBar.style.width = '0%';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(claimLoginOverlay.classList.contains('open')) closeLogin();
+    if(claimWriteOverlay.classList.contains('open')) closeWrite();
+  });
 </script>
 </body>
 </html>
