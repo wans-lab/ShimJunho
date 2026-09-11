@@ -148,7 +148,7 @@ body{
 
   /* -------- Hero -------- */
   .hero{
-    min-height:100vh; min-height:100svh; display:flex; align-items:center;
+    min-height:100vh; min-height:100svh; display:flex; align-items:safe center;
     padding:110px 0 90px; position:relative; overflow:hidden; background:var(--blue); color:#fff;
     scroll-snap-align:start;
   }
@@ -277,7 +277,7 @@ body{
   }
 
   /* -------- Band shared -------- */
-  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start; }
+  .band{ padding:130px 0; border-top:1px solid var(--line); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:safe center; position:relative; scroll-snap-align:start; }
   /* 글이 계속 쌓이는 섹션은 한 화면 강제 고정을 풀고 콘텐츠 양에 맞게 자연스럽게 늘어나도록 원복 (스크롤 스냅 대상에서도 제외) */
   #issues, #knowledge, #press{ min-height:auto; display:block; scroll-snap-align:none; }
   .band-alt{ background:var(--bg-alt); }
@@ -427,7 +427,7 @@ body{
   background:var(--bg-alt); 
   overflow:hidden; /* <-- 이 구문을 반드시 추가해 주세요! */
   width:100%;       /* <-- 안전하게 너비를 100%로 고정합니다. */
-  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start;
+  min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:safe center; position:relative; scroll-snap-align:start;
 }
   .marquee-head{ text-align:center; padding:80px 0 46px; }
   .marquee-track{ display:flex; width:max-content; animation:marquee 38s linear infinite; padding-bottom:80px; }
@@ -437,7 +437,7 @@ body{
   @media (max-width:640px){ .marquee-track img{ width:240px; height:180px; } }
 
   /* -------- CTA -------- */
-  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:center; position:relative; scroll-snap-align:start; }
+  .cta{ padding:130px 0; text-align:center; background:linear-gradient(180deg, #fff, var(--bg-alt)); min-height:calc(100vh - 76px); min-height:calc(100svh - 76px); display:grid; grid-template-columns:minmax(0,1fr); align-content:safe center; position:relative; scroll-snap-align:start; }
   .cta h2{ font-size:clamp(28px,4vw,46px); margin-bottom:20px; }
   .cta p{ color:var(--muted); font-size:15px; margin-bottom:38px; }
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
@@ -820,11 +820,26 @@ body{
   }
   @media (max-width:640px){
     .wrap{ padding:0 22px; }
-    .band{ padding:90px 0; }
+    .band{ padding:80px 0; }
     .hero{ padding:150px 0 70px; }
-    .stat-row{ gap:36px; }
+    .stat-row{ gap:36px; row-gap:28px; }
     .stat-row .num{ font-size:46px; }
     .service-cell{ padding:32px 24px; }
+
+    /* 히어로 스택 요소들 간 간격을 넉넉하게 */
+    .hero-brand-badge{ margin-bottom:20px; }
+    .hero-sub{ font-size:14.5px; line-height:1.65; }
+    .hero-cta{ margin-top:30px; gap:12px; row-gap:14px; }
+    .hero-counter-row{ margin-top:26px; gap:12px; row-gap:14px; }
+
+    /* 섹션 제목 블록과 카드형 콘텐츠들 간격/여백 정리 */
+    .band-head{ margin-bottom:40px; }
+    .issues-grid{ gap:18px; }
+    .issue-info{ padding:14px 16px 16px; }
+    .issue-title{ font-size:14.5px; }
+    .issue-excerpt{ font-size:12px; }
+    .reflink-grid{ gap:16px; }
+    .reflink-card{ padding:20px; }
   }
 </style>
 </head>
